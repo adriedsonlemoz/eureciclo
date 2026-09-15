@@ -10,7 +10,7 @@
           <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-      <h1 class="font-syne font-extrabold text-xl text-gradient flex-1">
+      <h1 class="font-app font-extrabold text-xl text-gradient flex-1">
         {{ isEdit ? 'Editar Material' : 'Novo Material' }}
       </h1>
       <!-- Icon preview -->
@@ -25,7 +25,7 @@
       <!-- Success toast -->
       <transition name="toast">
         <div v-if="showToast"
-             class="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl font-syne font-bold text-sm text-white flex items-center gap-2"
+             class="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl font-app font-bold text-sm text-white flex items-center gap-2"
              style="background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 6px 24px rgba(22,163,74,0.35);">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -36,13 +36,13 @@
 
       <!-- SECTION: Identificação -->
       <div class="mb-5 animate-fade-up">
-        <label class="block font-syne font-bold text-xs text-slate-400 uppercase tracking-widest mb-3">
+        <label class="block font-app font-bold text-xs text-slate-400 uppercase tracking-widest mb-3">
           Identificação
         </label>
         <div class="glass-card rounded-2xl overflow-hidden">
           <!-- Icon picker -->
           <div class="px-4 py-3 border-b border-eco-50">
-            <p class="text-slate-400 text-xs font-dm mb-2">Ícone (emoji)</p>
+            <p class="text-slate-400 text-xs font-app mb-2">Ícone (emoji)</p>
             <div class="flex gap-2 flex-wrap">
               <button
                 v-for="em in iconOptions"
@@ -59,16 +59,16 @@
 
           <!-- Name -->
           <div class="px-4 py-3 border-b border-eco-50">
-            <p class="text-slate-400 text-xs font-dm mb-1.5">Nome do material *</p>
+            <p class="text-slate-400 text-xs font-app mb-1.5">Nome do material *</p>
             <input v-model="form.name" type="text" placeholder="Ex: Alumínio / Latas"
                    required
                    class="input-eco w-full px-3 py-2.5 text-sm" />
-            <p v-if="errors.name" class="text-red-500 text-xs font-dm mt-1">{{ errors.name }}</p>
+            <p v-if="errors.name" class="text-red-500 text-xs font-app mt-1">{{ errors.name }}</p>
           </div>
 
           <!-- Description -->
           <div class="px-4 py-3">
-            <p class="text-slate-400 text-xs font-dm mb-1.5">Descrição (opcional)</p>
+            <p class="text-slate-400 text-xs font-app mb-1.5">Descrição (opcional)</p>
             <input v-model="form.description" type="text" placeholder="Ex: 70 latas = 1 kg"
                    class="input-eco w-full px-3 py-2.5 text-sm" />
           </div>
@@ -77,20 +77,20 @@
 
       <!-- SECTION: Categoria & Cor -->
       <div class="mb-5 animate-fade-up stagger-2">
-        <label class="block font-syne font-bold text-xs text-slate-400 uppercase tracking-widest mb-3">
+        <label class="block font-app font-bold text-xs text-slate-400 uppercase tracking-widest mb-3">
           Categoria e Cor
         </label>
         <div class="glass-card rounded-2xl overflow-hidden">
           <!-- Category -->
           <div class="px-4 py-3 border-b border-eco-50">
-            <p class="text-slate-400 text-xs font-dm mb-2">Categoria *</p>
+            <p class="text-slate-400 text-xs font-app mb-2">Categoria *</p>
             <div class="grid grid-cols-2 gap-2">
               <button
                 v-for="cat in categories"
                 :key="cat.key"
                 type="button"
                 @click="form.category = cat.key"
-                class="py-2 px-3 rounded-xl text-xs font-syne font-bold transition-all active:scale-95 flex items-center gap-2"
+                class="py-2 px-3 rounded-xl text-xs font-app font-bold transition-all active:scale-95 flex items-center gap-2"
                 :style="form.category === cat.key
                   ? `background: ${categoryColors[cat.key].bg}; border: 1.5px solid ${categoryColors[cat.key].border}; color: ${categoryColors[cat.key].text}`
                   : 'background: #f8fafc; border: 1.5px solid #e2e8f0; color: #94a3b8'"
@@ -103,7 +103,7 @@
 
           <!-- Accent color -->
           <div class="px-4 py-3">
-            <p class="text-slate-400 text-xs font-dm mb-2">Cor de destaque</p>
+            <p class="text-slate-400 text-xs font-app mb-2">Cor de destaque</p>
             <div class="flex gap-2 flex-wrap">
               <button
                 v-for="col in colorOptions"
@@ -123,15 +123,15 @@
 
       <!-- SECTION: Precificação -->
       <div class="mb-6 animate-fade-up stagger-3">
-        <label class="block font-syne font-bold text-xs text-slate-400 uppercase tracking-widest mb-3">
+        <label class="block font-app font-bold text-xs text-slate-400 uppercase tracking-widest mb-3">
           Precificação
         </label>
         <div class="glass-card rounded-2xl overflow-hidden">
           <!-- Price per kg -->
           <div class="px-4 py-3 border-b border-eco-50">
-            <p class="text-slate-400 text-xs font-dm mb-1.5">Preço por kg (R$) *</p>
+            <p class="text-slate-400 text-xs font-app mb-1.5">Preço por kg (R$) *</p>
             <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 font-nunito font-bold text-slate-400 text-sm pointer-events-none">R$</span>
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 font-app font-bold text-slate-400 text-sm pointer-events-none">R$</span>
               <input
                 :value="displayPrice"
                 type="text"
@@ -144,19 +144,19 @@
                 @blur="e => e.target.style.borderColor = '#d1fae5'"
               />
             </div>
-            <p v-if="errors.pricePerKg" class="text-red-500 text-xs font-dm mt-1">{{ errors.pricePerKg }}</p>
+            <p v-if="errors.pricePerKg" class="text-red-500 text-xs font-app mt-1">{{ errors.pricePerKg }}</p>
           </div>
 
           <!-- Unit type toggle -->
           <div class="px-4 py-3 border-b border-eco-50">
-            <p class="text-slate-400 text-xs font-dm mb-2">Tipo de medição *</p>
+            <p class="text-slate-400 text-xs font-app mb-2">Tipo de medição *</p>
             <div class="flex gap-2">
               <button
                 v-for="ut in unitTypes"
                 :key="ut.value"
                 type="button"
                 @click="form.unitType = ut.value"
-                class="flex-1 py-2.5 rounded-xl text-xs font-syne font-bold transition-all active:scale-95"
+                class="flex-1 py-2.5 rounded-xl text-xs font-app font-bold transition-all active:scale-95"
                 :style="form.unitType === ut.value
                   ? 'background: #16a34a; border: 1.5px solid #16a34a; color: #ffffff'
                   : 'background: #f8fafc; border: 1.5px solid #e2e8f0; color: #94a3b8'"
@@ -167,33 +167,33 @@
           <!-- Units per kg -->
           <transition name="field-toggle">
             <div v-if="form.unitType === 'units'" class="px-4 py-3 border-b border-eco-50">
-              <p class="text-slate-400 text-xs font-dm mb-1.5">Unidades por kg *</p>
+              <p class="text-slate-400 text-xs font-app mb-1.5">Unidades por kg *</p>
               <input v-model.number="form.unitsPerKg" type="number" min="1" step="1"
                      placeholder="Ex: 70 para latas, 25 para PET"
                      :required="form.unitType === 'units'"
                      class="input-eco w-full px-4 py-3 text-sm" />
-              <p v-if="errors.unitsPerKg" class="text-red-500 text-xs font-dm mt-1">{{ errors.unitsPerKg }}</p>
+              <p v-if="errors.unitsPerKg" class="text-red-500 text-xs font-app mt-1">{{ errors.unitsPerKg }}</p>
             </div>
           </transition>
 
           <!-- Price preview -->
           <div v-if="form.pricePerKg > 0" class="px-4 py-3">
-            <p class="text-slate-400 text-xs font-dm mb-1.5">Prévia de preço</p>
+            <p class="text-slate-400 text-xs font-app mb-1.5">Prévia de preço</p>
             <div class="flex gap-2">
               <div class="flex-1 rounded-xl px-3 py-2 text-center"
                    style="background: #fffbeb; border: 1px solid #fde68a;">
-                <p class="font-syne font-extrabold text-base text-gradient-amber">
+                <p class="font-app font-extrabold text-base text-gradient-amber">
                   {{ formatCurrency(form.pricePerKg) }}
                 </p>
-                <p class="text-slate-400 text-xs font-dm">por kg</p>
+                <p class="text-slate-400 text-xs font-app">por kg</p>
               </div>
               <div v-if="form.unitType === 'units' && form.unitsPerKg > 0"
                    class="flex-1 rounded-xl px-3 py-2 text-center"
                    style="background: #f0fdf4; border: 1px solid #d1fae5;">
-                <p class="font-syne font-extrabold text-base text-eco-600">
+                <p class="font-app font-extrabold text-base text-eco-600">
                   {{ formatCurrency(form.pricePerKg / form.unitsPerKg) }}
                 </p>
-                <p class="text-slate-400 text-xs font-dm">por unidade</p>
+                <p class="text-slate-400 text-xs font-app">por unidade</p>
               </div>
             </div>
           </div>
@@ -205,7 +205,7 @@
         <button
           type="submit"
           :disabled="saving"
-          class="w-full py-4 rounded-2xl font-syne font-extrabold text-base text-white transition-all duration-150 active:scale-95 flex items-center justify-center gap-2"
+          class="w-full py-4 rounded-2xl font-app font-extrabold text-base text-white transition-all duration-150 active:scale-95 flex items-center justify-center gap-2"
           style="background: linear-gradient(135deg, #22c55e, #15803d); box-shadow: 0 6px 20px rgba(22,163,74,0.35);"
           :style="saving ? 'opacity:0.75' : ''"
         >
@@ -223,7 +223,7 @@
         </button>
 
         <button v-if="isEdit" type="button" @click="goBack"
-                class="w-full mt-3 py-3.5 rounded-2xl font-syne font-semibold text-sm text-slate-400 transition-all active:scale-95"
+                class="w-full mt-3 py-3.5 rounded-2xl font-app font-semibold text-sm text-slate-400 transition-all active:scale-95"
                 style="background: #f8fafc; border: 1px solid #e2e8f0;">
           Cancelar
         </button>

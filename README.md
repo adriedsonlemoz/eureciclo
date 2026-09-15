@@ -1,152 +1,90 @@
-# ReciclaCalc 🌿
+# Eu Reciclo 🌿
 
-Aplicativo de cálculo de valor de itens recicláveis — construído com **Vue 3 + Vite + Tailwind CSS + Capacitor**.
+Aplicativo mobile para calcular o valor estimado de materiais recicláveis, registrar vendas e manter preços personalizados. Construído com **Vue 3 + Vite + Tailwind CSS + Capacitor**.
 
----
+## Versão
 
-## Stack Tecnológica
+- App: **1.1.1**
+- Android `versionCode`: **10101** (gerado automaticamente a partir da versão)
+- Application ID: `com.eureciclo.app`
 
-| Camada     | Tecnologia                     |
-|------------|-------------------------------|
-| Framework  | Vue 3 (Composition API)        |
-| Build      | Vite 5                         |
-| Estilo     | Tailwind CSS 3                 |
-| Persistência | localStorage (via composable) |
-| Mobile     | Capacitor 6 (Android)          |
-| Fontes     | Syne + DM Sans (Google Fonts)  |
+## Stack
 
----
+| Camada | Tecnologia |
+|---|---|
+| Framework | Vue 3 (Composition API) |
+| Build | Vite 5 |
+| Estilo | Tailwind CSS 3 |
+| Persistência | localStorage com backup JSON |
+| Mobile | Capacitor 6 (Android) |
+| Fonte | Pilha nativa do sistema (offline) |
 
 ## Funcionalidades
 
-- **Calculadora de reciclagem** com categorias: Alumínio, PET, Cobre, Outros
-- **Lógica de conversão**: 70 latas = 1 kg · 25 garrafas PET = 1 kg
-- **Preço por unidade** calculado automaticamente
-- **Somador automático** — total em tempo real enquanto digita
-- **Gerenciamento de materiais**: adicionar, visualizar, editar e excluir
-- **Busca e filtro** por categoria
-- **Persistência local** — dados salvos no dispositivo
-- **Design responsivo** — 100% otimizado para celular
+- Calculadora por categoria e material
+- Conversão de unidades para kg
+- Cadastro, edição e exclusão de materiais
+- Preços personalizados por kg
+- Histórico de vendas com snapshot dos itens
+- Backup e restauração em JSON
+- Funcionamento offline
+- Build de APK pelo GitHub Actions
 
----
+## Preços iniciais sugeridos
 
-## Instalação e Desenvolvimento
+Os valores são apenas pontos de partida e podem ser alterados no primeiro uso:
 
-### 1. Pré-requisitos
+- Alumínio / Latas: R$ 6,00/kg
+- PET: R$ 2,50/kg
+- Cobre / Latão: R$ 30,00/kg
+- Papel, baterias e outros: R$ 3,00/kg
 
-- Node.js >= 18
-- npm >= 9
-- Android Studio (para build Android)
-- Java JDK 17+
+## Desenvolvimento
 
-### 2. Instalar dependências
-
-```bash
-npm install
-```
-
-### 3. Rodar em modo desenvolvimento (web)
+Pré-requisitos: Node.js 20+, npm e Java 17 para Android.
 
 ```bash
+npm ci
+npm test
 npm run dev
 ```
 
-Acesse: `http://localhost:5173`
-
----
-
-## Build para Android (Capacitor)
-
-### 1. Gerar build de produção
+Para build web:
 
 ```bash
 npm run build
 ```
 
-### 2. Adicionar plataforma Android (somente na primeira vez)
+Para Android local:
 
 ```bash
-npm run cap:add:android
-# ou: npx cap add android
+npm run build
+npx cap add android   # apenas se android/ não existir
+npx cap sync android
+npm run sync:android-version
+cd android
+./gradlew assembleDebug
 ```
 
-### 3. Sincronizar arquivos com o Android
+## Sobre o tamanho do projeto
 
-```bash
-npm run cap:sync
-# ou: npx cap sync
+`node_modules/`, `dist/` e `android/` gerado não fazem parte do ZIP de código-fonte. O `package-lock.json` mantém as versões das dependências e `npm ci` as reinstala quando necessário. Isso reduz o pacote de dezenas de megabytes para apenas o código necessário.
+
+## Persistência e segurança dos dados
+
+Os dados ficam no dispositivo. Use **Sobre → Backup dos dados → Exportar** periodicamente. O arquivo inclui materiais, preços, quantidades atuais, nome e histórico de vendas.
+
+## Estrutura
+
+```text
+src/
+├── components/
+├── composables/
+├── config/
+├── stores/
+├── utils/
+└── views/
+tests/
+scripts/
+.github/workflows/build-apk.yml
 ```
-
-### 4. Abrir no Android Studio
-
-```bash
-npm run cap:open
-# ou: npx cap open android
-```
-
-No Android Studio: **Build → Build Bundle(s) / APK(s) → Build APK(s)**
-
----
-
-## Lógica de Cálculo
-
-### Alumínio / Latas
-- **70 unidades = 1 kg**
-- Preço padrão: R$ 6,00/kg
-- Preço por unidade: R$ 0,086/un
-
-### PET (garrafas)
-- **25 unidades = 1 kg**
-- Preço padrão: R$ 2,50/kg
-- Preço por unidade: R$ 0,10/un
-
-### Cobre
-- Medido diretamente em kg
-- Preço padrão: R$ 30,00/kg
-
-### Outros (Papel, Vidro, Ferro, Plástico)
-- Medidos em kg
-- Preços variáveis por material
-
----
-
-## Estrutura do Projeto
-
-```
-recicla-calc/
-├── src/
-│   ├── assets/main.css          # Estilos globais + Tailwind
-│   ├── composables/
-│   │   └── useMaterials.js      # Estado global + CRUD + cálculos
-│   ├── router/index.js          # Rotas da aplicação
-│   ├── views/
-│   │   ├── HomeView.vue         # Dashboard inicial
-│   │   ├── CalculatorView.vue   # Calculadora com abas
-│   │   ├── MaterialsView.vue    # Lista de materiais
-│   │   └── AddEditMaterialView.vue  # Formulário add/edit
-│   ├── components/
-│   │   └── BottomNav.vue        # Navegação inferior
-│   ├── App.vue                  # Root + transições de página
-│   └── main.js                  # Entry point
-├── capacitor.config.json        # Config do Capacitor
-├── tailwind.config.js
-├── vite.config.js
-└── package.json
-```
-
----
-
-## Customização de Materiais
-
-Você pode adicionar novos materiais pelo app (aba **Materiais → +**) ou editar os preços padrão dos existentes. Todos os dados são salvos localmente no dispositivo via `localStorage`.
-
----
-
-## Paleta de Cores
-
-| Uso                | Cor           | Hex       |
-|--------------------|---------------|-----------|
-| Background         | Verde escuro  | `#0d1f0e` |
-| Accent primário    | Verde neon    | `#4ade80` |
-| Valores (R$)       | Âmbar         | `#fbbf24` |
-| Cards              | Glassmorphism | `rgba(18,33,20,0.7)` |

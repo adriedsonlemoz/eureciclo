@@ -6,8 +6,7 @@
     "androidScheme": "https"
   },
   "android": {
-    "backgroundColor": "#f5fef8",
-    "allowMixedContent": true
+    "backgroundColor": "#f5fef8"
   },
   "plugins": {
     "StatusBar": {

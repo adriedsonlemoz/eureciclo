@@ -11,7 +11,7 @@
         <div class="nav-icon relative w-6 h-6 flex items-center justify-center">
           <component :is="item.icon" :active="isActive(item)" />
         </div>
-        <span class="text-xs font-dm font-bold tracking-wide transition-all duration-200"
+        <span class="text-xs font-app font-bold tracking-wide transition-all duration-200"
               :class="isActive(item) ? 'text-eco-600' : 'text-slate-400'">
           {{ item.label }}
         </span>

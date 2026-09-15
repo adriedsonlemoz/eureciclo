@@ -1,0 +1,4 @@
+node_modules/ export-ignore
+dist/ export-ignore
+android/ export-ignore
+*.log export-ignore

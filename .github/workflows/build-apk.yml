@@ -35,44 +35,58 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Check source package hygiene
+        run: |
+          if git ls-files 'node_modules/**' | grep -q .; then
+            echo '::error::node_modules não deve ser versionado no repositório.'
+            exit 1
+          fi
+
       # ── 5. Dependencies ──────────────────────────────────────────────────────
       - name: Install npm dependencies
         run: npm ci
 
-      # ── 6. Web build ─────────────────────────────────────────────────────────
+      # ── 6. Testes rápidos ─────────────────────────────────────────────────────
+      - name: Run tests
+        run: npm test
+
+      # ── 7. Web build ─────────────────────────────────────────────────────────
       - name: Build web assets (Vite)
         run: npm run build
 
-      # ── 7. Add Android platform (if not present) ─────────────────────────────
+      # ── 8. Add Android platform (if not present) ─────────────────────────────
       - name: Add Android platform (if needed)
         run: |
           if [ ! -d "android" ]; then
             npx cap add android
           fi
 
-      # ── 8. Capacitor sync ────────────────────────────────────────────────────
+      # ── 9. Capacitor sync ────────────────────────────────────────────────────
       - name: Sync Capacitor to Android
         run: npx cap sync android
 
-      # ── 9. Grant Gradle execute permission ───────────────────────────────────
+      - name: Sync Android version
+        run: npm run sync:android-version
+
+      # ── 10. Grant Gradle execute permission ───────────────────────────────────
       - name: Make gradlew executable
         working-directory: android
         run: chmod +x gradlew
 
-      # ── 10. Build APK ─────────────────────────────────────────────────────────
+      # ── 11. Build APK ─────────────────────────────────────────────────────────
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
-      # ── 11. Upload artifact ──────────────────────────────────────────────────
+      # ── 12. Upload artifact ──────────────────────────────────────────────────
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: recicla-debug-${{ github.run_number }}
+          name: eu-reciclo-apk-${{ github.run_number }}
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
-      # ── 12. Summary ──────────────────────────────────────────────────────────
+      # ── 13. Summary ──────────────────────────────────────────────────────────
       - name: Build summary
         run: |
           echo "## ✅ APK Build concluído!" >> $GITHUB_STEP_SUMMARY

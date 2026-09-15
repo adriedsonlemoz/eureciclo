@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+android/
+
+# Tooling / OS
+.vite/
+.idea/
+.vscode/
+.DS_Store
+*.log
+npm-debug.log*
+
+# Local env
+.env
+.env.*
+!.env.example

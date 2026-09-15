@@ -74,7 +74,7 @@
         <div v-if="step === 2" key="step2" class="flex flex-col flex-1">
           <div class="mb-5">
             <h2 class="text-2xl font-black text-white mb-1">Preços na sua cidade</h2>
-            <p class="text-green-300 text-sm font-medium">Preço por kg de cada material. Padrão: <strong>R$ 3,00</strong>.</p>
+            <p class="text-green-300 text-sm font-medium">Preço por kg de cada material. Ajuste conforme os valores da sua cidade.</p>
           </div>
 
           <div class="setup-card rounded-3xl p-5 mb-5 flex flex-col gap-3">
@@ -106,7 +106,7 @@
           <div class="setup-card rounded-3xl p-4 flex items-center gap-3 mb-6">
             <span class="text-2xl shrink-0">📍</span>
             <p class="text-slate-600 text-sm font-medium leading-snug">
-              Deixe em branco para usar o valor padrão de <strong class="text-green-700">R$ 3,00/kg</strong>.
+              Os campos já começam com valores sugeridos e podem ser alterados livremente.
             </p>
           </div>
 
@@ -136,8 +136,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { applySetup } from '@/composables/useMaterials'
-import { handlePriceInput, numberToDisplay } from '@/composables/usePriceMask'
+import { applySetup, DEFAULT_CATEGORY_PRICES } from '@/composables/useMaterials'
+import { numberToDisplay } from '@/composables/usePriceMask'
 
 const router = useRouter()
 
@@ -146,22 +146,22 @@ const userName = ref('')
 
 // Numeric values (actual price per kg)
 const prices = reactive({
-  latas:    3,
-  pet:      3,
-  cobre:    3,
-  papel:    3,
-  baterias: 3,
-  outros:   3
+  latas:    DEFAULT_CATEGORY_PRICES.aluminio,
+  pet:      DEFAULT_CATEGORY_PRICES.pet,
+  cobre:    DEFAULT_CATEGORY_PRICES.cobre,
+  papel:    DEFAULT_CATEGORY_PRICES.papel,
+  baterias: DEFAULT_CATEGORY_PRICES.baterias,
+  outros:   DEFAULT_CATEGORY_PRICES.outros
 })
 
 // Displayed strings in inputs
 const displayPrices = reactive({
-  latas:    numberToDisplay(3),
-  pet:      numberToDisplay(3),
-  cobre:    numberToDisplay(3),
-  papel:    numberToDisplay(3),
-  baterias: numberToDisplay(3),
-  outros:   numberToDisplay(3)
+  latas:    numberToDisplay(DEFAULT_CATEGORY_PRICES.aluminio),
+  pet:      numberToDisplay(DEFAULT_CATEGORY_PRICES.pet),
+  cobre:    numberToDisplay(DEFAULT_CATEGORY_PRICES.cobre),
+  papel:    numberToDisplay(DEFAULT_CATEGORY_PRICES.papel),
+  baterias: numberToDisplay(DEFAULT_CATEGORY_PRICES.baterias),
+  outros:   numberToDisplay(DEFAULT_CATEGORY_PRICES.outros)
 })
 
 const priceFields = [
@@ -182,7 +182,7 @@ function onPriceInput(key, event) {
   const decPart = str.slice(-2)
   const intFormatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
   displayPrices[key] = `${intFormatted},${decPart}`
-  prices[key] = cents / 100 || 3
+  prices[key] = cents / 100
   // Keep cursor at end
   const el = event.target
   requestAnimationFrame(() => el.setSelectionRange(el.value.length, el.value.length))

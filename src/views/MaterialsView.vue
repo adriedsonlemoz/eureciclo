@@ -4,7 +4,7 @@
     <header class="px-5 pt-4 pb-3 sticky top-0 z-30"
             style="background: rgba(245,254,248,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid #e2f5e8;">
       <div class="flex items-center justify-between mb-3">
-        <h1 class="font-syne font-extrabold text-xl text-gradient">Materiais</h1>
+        <h1 class="font-app font-extrabold text-xl text-gradient">Materiais</h1>
         <router-link to="/materials/add"
                      class="fab" style="width:44px; height:44px; border-radius:14px;">
           <svg class="w-5 h-5 text-white" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
@@ -54,13 +54,13 @@
 
           <!-- Info -->
           <div class="flex-1 min-w-0">
-            <p class="font-syne font-bold text-sm text-slate-700 leading-tight">{{ mat.name }}</p>
+            <p class="font-app font-bold text-sm text-slate-700 leading-tight">{{ mat.name }}</p>
             <div class="flex items-center gap-2 mt-1">
               <span class="pill text-xs"
                     :style="{ background: categoryColors[mat.category]?.bg, color: categoryColors[mat.category]?.text }">
                 {{ categoryLabel(mat.category) }}
               </span>
-              <span v-if="mat.unitType === 'units'" class="text-slate-400 text-xs font-dm">
+              <span v-if="mat.unitType === 'units'" class="text-slate-400 text-xs font-app">
                 {{ mat.unitsPerKg }} un/kg
               </span>
             </div>
@@ -68,8 +68,8 @@
 
           <!-- Price -->
           <div class="text-right shrink-0 mr-1">
-            <p class="font-syne font-bold text-sm text-gradient-amber">{{ formatCurrency(mat.pricePerKg) }}/kg</p>
-            <p v-if="mat.unitType === 'units'" class="text-slate-400 text-xs font-dm">
+            <p class="font-app font-bold text-sm text-gradient-amber">{{ formatCurrency(mat.pricePerKg) }}/kg</p>
+            <p v-if="mat.unitType === 'units'" class="text-slate-400 text-xs font-app">
               {{ formatCurrency(getPricePerUnit(mat)) }}/un
             </p>
           </div>
@@ -99,10 +99,10 @@
       <div v-if="!filteredMaterials.length" class="flex flex-col items-center justify-center py-16 text-center">
         <div class="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4"
              style="background: #f0fdf4; border: 2px dashed #d1fae5;">🔍</div>
-        <p class="font-syne font-semibold text-slate-400 text-sm">
+        <p class="font-app font-semibold text-slate-400 text-sm">
           {{ search ? 'Nenhum resultado encontrado.' : 'Nenhum material nesta categoria.' }}
         </p>
-        <router-link to="/materials/add" class="mt-3 text-eco-600 text-xs font-dm font-semibold underline">
+        <router-link to="/materials/add" class="mt-3 text-eco-600 text-xs font-app font-semibold underline">
           Adicionar material →
         </router-link>
       </div>
@@ -117,18 +117,18 @@
         <div class="w-full max-w-sm glass-card-bright rounded-3xl p-6 animate-bounce-in">
           <div class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-3"
                style="background: #fff5f5; border: 2px solid #fecaca;">🗑️</div>
-          <h3 class="font-syne font-bold text-lg text-slate-700 text-center">Excluir material?</h3>
-          <p class="text-slate-400 text-sm font-dm text-center mt-1 mb-5">
+          <h3 class="font-app font-bold text-lg text-slate-700 text-center">Excluir material?</h3>
+          <p class="text-slate-400 text-sm font-app text-center mt-1 mb-5">
             "{{ deleteTarget?.name }}" será removido permanentemente.
           </p>
           <div class="flex gap-3">
             <button @click="deleteTarget = null"
-                    class="flex-1 py-3 rounded-2xl font-syne font-bold text-sm text-slate-500 transition-all active:scale-95"
+                    class="flex-1 py-3 rounded-2xl font-app font-bold text-sm text-slate-500 transition-all active:scale-95"
                     style="background: #f8fafc; border: 1px solid #e2e8f0;">
               Cancelar
             </button>
             <button @click="doDelete"
-                    class="flex-1 py-3 rounded-2xl font-syne font-bold text-sm text-white transition-all active:scale-95"
+                    class="flex-1 py-3 rounded-2xl font-app font-bold text-sm text-white transition-all active:scale-95"
                     style="background: linear-gradient(135deg, #ef4444, #dc2626);">
               Excluir
             </button>

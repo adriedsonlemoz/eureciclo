@@ -4,9 +4,9 @@
     <header class="px-5 pt-4 pb-3 sticky top-0 z-30"
             style="background: rgba(245,254,248,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid #e2f5e8;">
       <div class="flex items-center justify-between mb-3">
-        <h1 class="font-syne font-extrabold text-xl text-gradient">Calculadora</h1>
+        <h1 class="font-app font-extrabold text-xl text-gradient">Calculadora</h1>
         <button @click="clearAll"
-                class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-dm font-semibold text-xs text-slate-500 transition-all active:scale-95"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-app font-semibold text-xs text-slate-500 transition-all active:scale-95"
                 style="background: #f8fafc; border: 1px solid #e2e8f0;">
           <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -49,15 +49,15 @@
               {{ mat.icon }}
             </div>
             <div class="flex-1 min-w-0">
-              <p class="font-syne font-bold text-sm text-slate-700">{{ mat.name }}</p>
-              <p class="text-slate-400 text-xs font-dm mt-0.5">{{ mat.description }}</p>
+              <p class="font-app font-bold text-sm text-slate-700">{{ mat.name }}</p>
+              <p class="text-slate-400 text-xs font-app mt-0.5">{{ mat.description }}</p>
             </div>
             <!-- Price badge -->
             <div class="shrink-0 text-right">
-              <p class="font-syne font-bold text-sm text-gradient-amber">
+              <p class="font-app font-bold text-sm text-gradient-amber">
                 {{ formatCurrency(mat.pricePerKg) }}/kg
               </p>
-              <p v-if="mat.unitType === 'units'" class="text-slate-400 text-xs font-dm">
+              <p v-if="mat.unitType === 'units'" class="text-slate-400 text-xs font-app">
                 ≈ {{ formatCurrency(getPricePerUnit(mat)) }}/un
               </p>
             </div>
@@ -89,7 +89,7 @@
                   class="input-eco w-full px-4 py-3 text-center text-lg"
                   :style="`border-color: ${quantities[mat.id] > 0 ? mat.accentColor + '80' : '#d1fae5'}`"
                 />
-                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-dm text-slate-400 pointer-events-none">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-app text-slate-400 pointer-events-none">
                   {{ mat.unitType === 'units' ? 'un' : 'kg' }}
                 </span>
               </div>
@@ -107,7 +107,7 @@
               <div v-if="quantities[mat.id] > 0" class="mt-3">
                 <div class="rounded-2xl px-4 py-2.5 flex items-center justify-between"
                      :style="{ background: `${mat.accentColor}10`, border: `1px solid ${mat.accentColor}25` }">
-                  <div class="text-xs font-dm text-slate-500">
+                  <div class="text-xs font-app text-slate-500">
                     <template v-if="mat.unitType === 'units'">
                       {{ displayQty[mat.id] || 0 }} un → {{ (quantities[mat.id] / mat.unitsPerKg).toFixed(3) }} kg
                     </template>
@@ -115,7 +115,7 @@
                       {{ displayQty[mat.id] || 0 }} kg
                     </template>
                   </div>
-                  <div class="font-syne font-extrabold text-base text-gradient-amber">
+                  <div class="font-app font-extrabold text-base text-gradient-amber">
                     {{ formatCurrency(calcValue(mat, quantities[mat.id])) }}
                   </div>
                 </div>
@@ -129,8 +129,8 @@
       <div v-if="!currentMaterials.length" class="flex flex-col items-center justify-center py-16 text-center">
         <div class="w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4"
              style="background: #f0fdf4; border: 2px dashed #d1fae5;">🗂️</div>
-        <p class="font-syne font-semibold text-slate-400 text-sm">Nenhum material nesta categoria.</p>
-        <router-link to="/materials/add" class="mt-3 text-eco-600 text-xs font-dm font-semibold underline">
+        <p class="font-app font-semibold text-slate-400 text-sm">Nenhum material nesta categoria.</p>
+        <router-link to="/materials/add" class="mt-3 text-eco-600 text-xs font-app font-semibold underline">
           Adicionar material →
         </router-link>
       </div>
@@ -144,11 +144,11 @@
         <div class="rounded-2xl px-5 py-3 flex items-center justify-between"
              style="background: linear-gradient(135deg, #16a34a, #15803d);">
           <div class="min-w-0 flex-1">
-            <p class="text-white/60 text-xs font-dm font-semibold uppercase tracking-wider">Total estimado</p>
-            <p class="font-syne font-extrabold text-2xl text-white mt-0.5">
+            <p class="text-white/60 text-xs font-app font-semibold uppercase tracking-wider">Total estimado</p>
+            <p class="font-app font-extrabold text-2xl text-white mt-0.5">
               {{ formatCurrency(grandTotal) }}
             </p>
-            <p class="text-white/50 text-xs font-dm">
+            <p class="text-white/50 text-xs font-app">
               {{ totalKgDisplay }} kg · {{ filledCount }} item{{ filledCount !== 1 ? 's' : '' }}
             </p>
           </div>
@@ -161,7 +161,7 @@
               <polyline points="17 21 17 13 7 13 7 21" stroke-linecap="round" stroke-linejoin="round"/>
               <polyline points="7 3 7 8 15 8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span class="text-white text-xs font-dm font-bold">Salvar</span>
+            <span class="text-white text-xs font-app font-bold">Salvar</span>
           </button>
         </div>
       </div>
@@ -170,7 +170,7 @@
     <!-- Toast feedback -->
     <transition name="toast">
       <div v-if="showToast"
-           class="fixed left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl font-dm font-semibold text-sm text-white"
+           class="fixed left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl font-app font-semibold text-sm text-white"
            style="bottom: 160px; background: #15803d; box-shadow: 0 8px 24px rgba(21,128,61,0.4);">
         ✅ Venda salva com sucesso!
       </div>
