@@ -55,3 +55,18 @@ test('meta inválida ou material sem preço retorna zero', async () => {
   assert.equal(calculateRequiredQuantity({ unitType: 'weight', pricePerKg: 0 }, 10), 0)
   assert.equal(calculateRequiredQuantity({ unitType: 'units', unitsPerKg: 70, pricePerKg: 6 }, 0), 0)
 })
+
+test('entrada numérica aceita vírgula e ponto decimal e normaliza para pt-BR', async () => {
+  const { normalizeLocaleInput, parseLocaleNumber } = await import('../src/utils/number.js')
+  assert.equal(normalizeLocaleInput('3.25', { maxDecimals: 3 }).display, '3,25')
+  assert.equal(normalizeLocaleInput('3,25', { maxDecimals: 3 }).display, '3,25')
+  assert.equal(parseLocaleNumber('1.234,56', { maxDecimals: 2 }), 1234.56)
+  assert.equal(parseLocaleNumber('1,234.56', { maxDecimals: 2 }), 1234.56)
+})
+
+test('quantidade por unidade não aceita decimal e recebe separador de milhar', async () => {
+  const { normalizeLocaleInput } = await import('../src/utils/number.js')
+  const result = normalizeLocaleInput('1250', { allowDecimals: false, maxDecimals: 0 })
+  assert.equal(result.value, 1250)
+  assert.equal(result.display, '1.250')
+})

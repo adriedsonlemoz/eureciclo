@@ -88,7 +88,7 @@ const navItems = [
   { path: '/calculator', label: 'Calcular',  icon: CalcIcon, matches: ['/meta-compra'] },
   { path: '/sales',      label: 'Vendas',    icon: SalesIcon },
   { path: '/materials',  label: 'Materiais', icon: ListIcon },
-  { path: '/sobre',      label: 'Sobre',     icon: AboutIcon },
+  { path: '/sobre',      label: 'Ajustes',   icon: AboutIcon },
 ]
 </script>
 

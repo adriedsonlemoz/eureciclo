@@ -48,9 +48,10 @@
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-app font-bold text-slate-400">R$</span>
             <input :value="draftPriceDisplay"
                    @input="onPriceInput"
+                   @blur="normalizeDraftPrice"
                    @keyup.enter="addItem"
                    class="input-eco w-full pl-9 pr-3 py-3 text-right"
-                   inputmode="numeric"
+                   inputmode="decimal"
                    placeholder="0,00" />
           </div>
         </div>
@@ -91,11 +92,11 @@
 
         <select v-model="selectedMaterialId" class="input-eco w-full px-3 py-3">
           <option v-for="material in materials" :key="material.id" :value="String(material.id)">
-            {{ material.icon }} {{ material.name }} — {{ formatCurrency(material.pricePerKg) }}/kg
+            {{ material.icon }} {{ material.name }} — {{ material.pricePerKg > 0 ? `${formatCurrency(material.pricePerKg)}/kg` : 'preço a definir' }}
           </option>
         </select>
 
-        <div v-if="selectedMaterial && totalTarget > 0" class="mt-4 rounded-3xl p-5" style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;">
+        <div v-if="selectedMaterial && selectedMaterial.pricePerKg > 0 && totalTarget > 0" class="mt-4 rounded-3xl p-5" style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;">
           <div class="flex items-start gap-3">
             <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0" style="background:#fff;border:1px solid #dcfce7;">
               {{ selectedMaterial.icon }}
@@ -132,7 +133,7 @@
         </div>
 
         <div v-else class="mt-4 rounded-2xl p-4 text-center" style="background:#f8fafc;border:1px dashed #cbd5e1;">
-          <p class="font-app text-xs text-slate-400">Adicione pelo menos um produto com preço para ver o cálculo.</p>
+          <p class="font-app text-xs text-slate-400">{{ selectedMaterial && selectedMaterial.pricePerKg <= 0 ? 'Defina o preço deste material em Materiais antes de calcular a meta.' : 'Adicione pelo menos um produto com preço para ver o cálculo.' }}</p>
         </div>
       </section>
 
@@ -176,7 +177,7 @@ import { useRouter } from 'vue-router'
 import { useMaterials } from '@/composables/useMaterials'
 import { useCalculator } from '@/composables/useCalculator'
 import { usePurchaseGoals } from '@/composables/usePurchaseGoals'
-import { centsToDisplay } from '@/composables/usePriceMask'
+import { normalizeLocaleInput, formatPriceInput } from '@/utils/number'
 import { calculateMaterialValue, calculateRequiredQuantity, quantityToKg } from '@/utils/recycling'
 
 const router = useRouter()
@@ -186,12 +187,12 @@ const { goals, saveGoal, deleteGoal } = usePurchaseGoals()
 
 const items = ref([])
 const draftName = ref('')
-const draftPriceCents = ref(0)
-const selectedMaterialId = ref(String(materials.value.find(material => material.category === 'aluminio')?.id ?? materials.value[0]?.id ?? ''))
+const draftPrice = ref(0)
+const draftPriceDisplay = ref('')
+const selectedMaterialId = ref(String(materials.value.find(material => material.name.toLowerCase().includes('alum'))?.id ?? materials.value[0]?.id ?? ''))
 const saveMessage = ref('')
 
-const draftPriceDisplay = computed(() => draftPriceCents.value ? centsToDisplay(draftPriceCents.value) : '')
-const canAdd = computed(() => draftName.value.trim().length > 0 && draftPriceCents.value > 0)
+const canAdd = computed(() => draftName.value.trim().length > 0 && draftPrice.value > 0)
 const totalTarget = computed(() => items.value.reduce((sum, item) => sum + Number(item.price || 0), 0))
 const selectedMaterial = computed(() => materials.value.find(material => String(material.id) === String(selectedMaterialId.value)) || null)
 const requiredQuantity = computed(() => calculateRequiredQuantity(selectedMaterial.value, totalTarget.value))
@@ -207,8 +208,9 @@ const progressPercent = computed(() => {
 
 const unitLabel = computed(() => {
   if (!selectedMaterial.value || selectedMaterial.value.unitType !== 'units') return 'kg'
-  if (selectedMaterial.value.category === 'aluminio') return 'latinhas'
-  if (selectedMaterial.value.category === 'pet') return 'garrafas'
+  const name = selectedMaterial.value.name.toLowerCase()
+  if (name.includes('lata') || name.includes('alum')) return 'latinhas'
+  if (name.includes('pet')) return 'garrafas'
   return 'unidades'
 })
 
@@ -229,9 +231,14 @@ function formatKg(value) {
 }
 
 function onPriceInput(event) {
-  const digits = String(event.target.value || '').replace(/\D/g, '')
-  draftPriceCents.value = Number.parseInt(digits || '0', 10)
-  event.target.value = draftPriceDisplay.value
+  const normalized = normalizeLocaleInput(event.target.value, { allowDecimals: true, maxDecimals: 2 })
+  draftPrice.value = normalized.value
+  draftPriceDisplay.value = normalized.display
+  event.target.value = normalized.display
+}
+
+function normalizeDraftPrice() {
+  draftPriceDisplay.value = draftPrice.value > 0 ? formatPriceInput(draftPrice.value) : ''
 }
 
 function addItem() {
@@ -239,10 +246,11 @@ function addItem() {
   items.value.push({
     id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     name: draftName.value.trim(),
-    price: draftPriceCents.value / 100
+    price: draftPrice.value
   })
   draftName.value = ''
-  draftPriceCents.value = 0
+  draftPrice.value = 0
+  draftPriceDisplay.value = ''
   saveMessage.value = ''
 }
 

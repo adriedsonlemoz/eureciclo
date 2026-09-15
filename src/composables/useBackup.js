@@ -1,7 +1,7 @@
 import { APP_NAME, APP_VERSION } from '@/config/app'
 import { BACKUP_SCHEMA_VERSION, validateBackupPayload } from '@/utils/backup'
 import { getStorage, readJsonStorage, readTextStorage, writeJsonStorage, writeTextStorage } from '@/utils/storage'
-import { MATERIALS_KEY, USER_KEY, SETUP_KEY, defaultMaterials } from '@/composables/useMaterials'
+import { MATERIALS_KEY, MATERIALS_SCHEMA_KEY, MATERIALS_SCHEMA_VERSION, USER_KEY, SETUP_KEY, defaultMaterials } from '@/composables/useMaterials'
 import { CALC_KEY } from '@/stores/calculatorState'
 import { SALES_KEY } from '@/composables/useSales'
 import { PURCHASE_GOALS_KEY } from '@/composables/usePurchaseGoals'
@@ -14,6 +14,7 @@ export function buildBackupPayload() {
     exportedAt: new Date().toISOString(),
     data: {
       materials: readJsonStorage(MATERIALS_KEY, defaultMaterials),
+      materialsSchemaVersion: Number(readTextStorage(MATERIALS_SCHEMA_KEY, String(MATERIALS_SCHEMA_VERSION))) || MATERIALS_SCHEMA_VERSION,
       quantities: readJsonStorage(CALC_KEY, {}),
       sales: readJsonStorage(SALES_KEY, []),
       purchaseGoals: readJsonStorage(PURCHASE_GOALS_KEY, []),
@@ -54,6 +55,7 @@ export async function importBackupFile(file) {
   if (!storage) throw new Error('Armazenamento local indisponível.')
 
   writeJsonStorage(MATERIALS_KEY, payload.data.materials)
+  writeTextStorage(MATERIALS_SCHEMA_KEY, String(Number(payload.data.materialsSchemaVersion) || 0))
   writeJsonStorage(CALC_KEY, payload.data.quantities)
   writeJsonStorage(SALES_KEY, payload.data.sales)
   writeJsonStorage(PURCHASE_GOALS_KEY, Array.isArray(payload.data.purchaseGoals) ? payload.data.purchaseGoals : [])

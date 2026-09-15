@@ -1,45 +1,53 @@
 # Eu Reciclo 🌿
 
-Aplicativo mobile para calcular o valor estimado de materiais recicláveis, registrar vendas e manter preços personalizados. Construído com **Vue 3 + Vite + Tailwind CSS + Capacitor**.
+Aplicativo mobile para calcular o valor estimado de materiais recicláveis, registrar vendas, criar metas de compra e manter preços personalizados. Construído com **Vue 3 + Vite + Tailwind CSS + Capacitor**.
 
 ## Versão
 
-- App: **1.2.1**
-- Android `versionCode`: **10201** (gerado automaticamente a partir da versão)
+- App: **1.3.0**
+- Android `versionCode`: **10300**
 - Application ID: `com.eureciclo.app`
-
-## Stack
-
-| Camada | Tecnologia |
-|---|---|
-| Framework | Vue 3 (Composition API) |
-| Build | Vite 5 |
-| Estilo | Tailwind CSS 3 |
-| Persistência | localStorage com backup JSON |
-| Mobile | Capacitor 6 (Android) |
-| Fonte | Pilha nativa do sistema (offline) |
 
 ## Funcionalidades
 
 - Calculadora por categoria e material
+- Entradas numéricas em pt-BR com suporte a vírgula ou ponto decimal
 - Conversão de unidades para kg
 - Cadastro, edição e exclusão de materiais
-- Preços personalizados por kg
-- Histórico de vendas com snapshot dos itens
-- Meta de compra: converte o preço de produtos em latinhas, unidades ou kg necessários
-- Lista de compras com vários produtos e metas salvas
+- Preço independente para cada material
+- Categorias: Metais, Plásticos, Papel, Vidro, Baterias e Outros
+- Lista padrão ampliada com Alumínio/Latas, PET, Cobre, Latão, Ferro/Aço, Inox, PEAD/HDPE, PP, Plástico Misto, Papelão, Papel, Vidro, Pilhas/Baterias pequenas e Bateria automotiva
+- Histórico de vendas com confirmação de exclusão
+- Proteção contra salvamento duplicado de uma mesma venda
+- Carregar uma venda antiga de volta na Calculadora
+- Meta de compra com vários produtos e progresso na Home
 - Backup e restauração em JSON
+- Doação via PIX com botão de copiar (`adriedson@outlook.com`)
 - Funcionamento offline
-- Build de APK pelo GitHub Actions
+- Modo Android em tela cheia imersivo
+- APK publicado diretamente na GitHub Release
 
-## Preços iniciais sugeridos
+## Preços iniciais
 
-Os valores são apenas pontos de partida e podem ser alterados no primeiro uso:
+Os valores já existentes nas versões anteriores são preservados como ponto de partida. Materiais novos sem referência confiável entram com **preço a definir**, evitando inventar valor de mercado. Cada preço pode ser alterado individualmente em **Materiais**.
 
-- Alumínio / Latas: R$ 6,00/kg
-- PET: R$ 2,50/kg
-- Cobre / Latão: R$ 30,00/kg
-- Papel, baterias e outros: R$ 3,00/kg
+## Números
+
+Campos de preço e peso aceitam tanto vírgula quanto ponto decimal e normalizam a exibição para pt-BR.
+
+Exemplos:
+
+```text
+3,25      → 3,25
+3.25      → 3,25
+1250      → 1.250
+1250,5    → 1.250,5
+1250.5    → 1.250,5
+1.234,56  → 1.234,56
+1,234.56  → 1.234,56
+```
+
+Campos por unidade são mantidos como inteiros.
 
 ## Desenvolvimento
 
@@ -51,42 +59,42 @@ npm test
 npm run dev
 ```
 
-Para build web:
+Build web:
 
 ```bash
 npm run build
 ```
 
-Para Android local:
+Android local:
 
 ```bash
 npm run build
 npx cap add android   # apenas se android/ não existir
-npx cap sync android
-npm run sync:android-version
+npm run android:prepare
 cd android
 ./gradlew assembleDebug
 ```
 
-## Sobre o tamanho do projeto
+`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode` e ativa o modo tela cheia imersivo.
 
-`node_modules/`, `dist/` e `android/` gerado não fazem parte do ZIP de código-fonte. O `package-lock.json` mantém as versões das dependências e `npm ci` as reinstala quando necessário. Isso reduz o pacote de dezenas de megabytes para apenas o código necessário.
+## GitHub Manager
 
-## Persistência e segurança dos dados
+`github-manager.json` contém identidade, versão, `versionCode`, `applicationId`, repositório e a lista das principais funções do app. O comando abaixo valida a consistência antes do build:
 
-Os dados ficam no dispositivo. Use **Sobre → Backup dos dados → Exportar** periodicamente. O arquivo inclui materiais, preços, quantidades atuais, nome, histórico de vendas e metas de compra.
-
-## Estrutura
-
-```text
-src/
-├── components/
-├── composables/
-├── config/
-├── stores/
-├── utils/
-└── views/
-tests/
-scripts/
-.github/workflows/build-apk.yml
+```bash
+npm run check:version
 ```
+
+A validação compara `package.json`, `package-lock.json` e `github-manager.json`.
+
+## APK direto
+
+O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, publica o arquivo **`Eu-Reciclo-v1.3.0.apk`** diretamente como asset da Release `v1.3.0`.
+
+## Tamanho do projeto
+
+`node_modules/`, `dist/` e `android/` gerado não entram no ZIP-fonte. O `package-lock.json` mantém as versões das dependências e `npm ci` reinstala o necessário no CI.
+
+## Dados e backup
+
+Os dados ficam no aparelho. Use **Ajustes → Backup dos dados → Exportar** periodicamente. O backup inclui materiais, esquema da lista de materiais, preços, quantidades, nome, vendas e metas de compra.

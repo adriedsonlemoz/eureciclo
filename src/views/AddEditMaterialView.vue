@@ -135,13 +135,13 @@
               <input
                 :value="displayPrice"
                 type="text"
-                inputmode="numeric"
+                inputmode="decimal"
                 placeholder="3,00"
                 maxlength="10"
                 class="input-eco w-full pl-10 pr-4 py-3 text-sm"
                 @input="onPriceInput"
                 @focus="e => e.target.style.borderColor = '#22c55e'"
-                @blur="e => e.target.style.borderColor = '#d1fae5'"
+                @blur="onPriceBlur"
               />
             </div>
             <p v-if="errors.pricePerKg" class="text-red-500 text-xs font-app mt-1">{{ errors.pricePerKg }}</p>
@@ -168,10 +168,11 @@
           <transition name="field-toggle">
             <div v-if="form.unitType === 'units'" class="px-4 py-3 border-b border-eco-50">
               <p class="text-slate-400 text-xs font-app mb-1.5">Unidades por kg *</p>
-              <input v-model.number="form.unitsPerKg" type="number" min="1" step="1"
-                     placeholder="Ex: 70 para latas, 25 para PET"
+              <input :value="form.unitsPerKg ? Number(form.unitsPerKg).toLocaleString('pt-BR') : ''" type="text" inputmode="numeric"
+                     placeholder="Ex.: 70 para latas, 25 para PET"
                      :required="form.unitType === 'units'"
-                     class="input-eco w-full px-4 py-3 text-sm" />
+                     class="input-eco w-full px-4 py-3 text-sm"
+                     @input="onUnitsPerKgInput" />
               <p v-if="errors.unitsPerKg" class="text-red-500 text-xs font-app mt-1">{{ errors.unitsPerKg }}</p>
             </div>
           </transition>
@@ -236,7 +237,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMaterials } from '@/composables/useMaterials'
-import { numberToDisplay } from '@/composables/usePriceMask'
+import { formatPriceInput, normalizeLocaleInput } from '@/utils/number'
 
 const route = useRoute()
 const router = useRouter()
@@ -255,18 +256,24 @@ const saving = ref(false)
 const showToast = ref(false)
 
 // Price mask display
-const displayPrice = ref(numberToDisplay(3))
+const displayPrice = ref(formatPriceInput(3))
 
 function onPriceInput(event) {
-  const digits = event.target.value.replace(/\D/g, '')
-  const cents  = parseInt(digits || '0', 10)
-  const str    = String(cents).padStart(3, '0')
-  const intPart = str.slice(0, -2).replace(/^0+/, '') || '0'
-  const decPart = str.slice(-2)
-  displayPrice.value = `${intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${decPart}`
-  form.value.pricePerKg = cents / 100 || 0
-  const el = event.target
-  requestAnimationFrame(() => el.setSelectionRange(el.value.length, el.value.length))
+  const normalized = normalizeLocaleInput(event.target.value, { allowDecimals: true, maxDecimals: 2 })
+  displayPrice.value = normalized.display
+  form.value.pricePerKg = normalized.value
+  event.target.value = normalized.display
+}
+
+function onPriceBlur(event) {
+  displayPrice.value = formatPriceInput(form.value.pricePerKg || 0)
+  event.target.value = displayPrice.value
+}
+
+function onUnitsPerKgInput(event) {
+  const normalized = normalizeLocaleInput(event.target.value, { allowDecimals: false, maxDecimals: 0 })
+  form.value.unitsPerKg = Math.round(normalized.value || 0) || ''
+  event.target.value = normalized.display
 }
 
 const iconOptions = ['♻️','🥫','🧴','⚡','🔧','📦','🫙','🔩','🌿','💎','🪨','🔋','📱','🖥️','🚗']
@@ -286,7 +293,7 @@ onMounted(() => {
         unitType: mat.unitType, unitsPerKg: mat.unitsPerKg || '',
         icon: mat.icon || '♻️', accentColor: mat.accentColor || '#22c55e'
       }
-      displayPrice.value = numberToDisplay(mat.pricePerKg)
+      displayPrice.value = formatPriceInput(mat.pricePerKg)
     }
   }
 })

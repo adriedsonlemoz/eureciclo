@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "name": "Eu Reciclo",
+  "versionName": "1.3.0",
+  "versionCode": 10300,
+  "applicationId": "com.eureciclo.app",
+  "namespace": "com.eureciclo.app",
+  "type": "Android",
+  "projectType": "Capacitor",
+  "framework": "Vue 3 + Capacitor",
+  "language": "JavaScript",
+  "kotlin": false,
+  "repository": "adriedsonlemoz/eureciclo",
+  "branch": "main",
+  "features": [
+    "Calculadora de recicláveis com vírgula ou ponto decimal",
+    "Conversão de unidades para kg",
+    "Cadastro, edição e exclusão de materiais",
+    "Preços independentes por material",
+    "Categorias de materiais e busca",
+    "Meta de compra com lista de produtos e progresso",
+    "Metas de compra salvas",
+    "Histórico de vendas com proteção contra duplicidade",
+    "Carregar venda antiga na Calculadora",
+    "Backup e restauração JSON",
+    "Ajustes do usuário",
+    "Doação via PIX com copiar chave",
+    "Funcionamento offline",
+    "Modo Android em tela cheia imersivo",
+    "APK direto em GitHub Release"
+  ]
+}

@@ -14,7 +14,7 @@
   }
 
   body {
-    background-color: #f5fef8;
+    background-color: #f8fbf9;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     color: #0f2419;
     min-height: 100dvh;
@@ -40,30 +40,43 @@
   /* Nunito utility */
   .font-app { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
-  /* Mesh background decoration */
-  .mesh-bg::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 40% at 10% 5%, rgba(187,247,208,0.45) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 30% at 90% 80%, rgba(134,239,172,0.25) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 35% at 50% 110%, rgba(220,252,231,0.5) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
+  .app-shell {
+    background: linear-gradient(180deg, #f8fbf9 0%, #f4faf6 100%);
+  }
+
+  .app-content {
+    padding-bottom: calc(76px + max(12px, env(safe-area-inset-bottom)));
+  }
+
+  .app-sticky-header {
+    background: rgba(248, 251, 249, 0.96);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid #e8f0eb;
+  }
+
+  .calc-total-bar {
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    background: rgba(248, 251, 249, 0.96);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .save-feedback {
+    bottom: calc(150px + env(safe-area-inset-bottom));
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
   }
 
   /* White card - primary surface */
   .glass-card {
     background: #ffffff;
-    border: 1px solid #e2f5e8;
-    box-shadow: 0 2px 12px rgba(22, 163, 74, 0.06), 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid #e5ece7;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.045);
   }
 
   .glass-card-bright {
     background: #ffffff;
-    border: 1px solid #bbf7d0;
-    box-shadow: 0 6px 24px rgba(22, 163, 74, 0.12), 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #ccebd7;
+    box-shadow: 0 5px 18px rgba(22, 163, 74, 0.09), 0 1px 5px rgba(15,23,42,0.04);
   }
 
   /* Gradient text */
@@ -99,8 +112,8 @@
 
   /* Input */
   .input-eco {
-    background: #f0fdf4;
-    border: 1.5px solid #d1fae5;
+    background: #f8fbf9;
+    border: 1.5px solid #dbe9df;
     border-radius: 12px;
     color: #0f2419;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -189,9 +202,9 @@
 
   /* Bottom nav */
   .bottom-nav {
-    background: #ffffff;
-    border-top: 1px solid #f0fdf4;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.07);
+    background: rgba(255,255,255,0.98);
+    border-top: 1px solid #e5ece7;
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.06);
   }
 
   /* Section divider */

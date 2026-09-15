@@ -68,10 +68,11 @@
 
           <!-- Price -->
           <div class="text-right shrink-0 mr-1">
-            <p class="font-app font-bold text-sm text-gradient-amber">{{ formatCurrency(mat.pricePerKg) }}/kg</p>
-            <p v-if="mat.unitType === 'units'" class="text-slate-400 text-xs font-app">
-              {{ formatCurrency(getPricePerUnit(mat)) }}/un
-            </p>
+            <template v-if="mat.pricePerKg > 0">
+              <p class="font-app font-bold text-sm text-gradient-amber">{{ formatCurrency(mat.pricePerKg) }}/kg</p>
+              <p v-if="mat.unitType === 'units'" class="text-slate-400 text-xs font-app">{{ formatCurrency(getPricePerUnit(mat)) }}/un</p>
+            </template>
+            <router-link v-else :to="`/materials/${mat.id}/edit`" class="font-app font-bold text-xs text-eco-700">Definir preço</router-link>
           </div>
 
           <!-- Actions -->

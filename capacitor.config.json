@@ -6,12 +6,13 @@
     "androidScheme": "https"
   },
   "android": {
-    "backgroundColor": "#f5fef8"
+    "backgroundColor": "#f8fbf9"
   },
   "plugins": {
     "StatusBar": {
       "style": "light",
-      "backgroundColor": "#f5fef8"
+      "backgroundColor": "#f8fbf9",
+      "overlaysWebView": true
     }
   }
 }

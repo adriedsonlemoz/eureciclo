@@ -7,6 +7,9 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-apk:
     name: Build Debug APK
@@ -28,9 +31,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # O pacote legado "tools" deixou de existir no repositório atual do SDK.
-      # packages: '' evita o default antigo "tools platform-tools"; o runner já
-      # traz o Android SDK e o Gradle instala os componentes exigidos pelo projeto.
       - name: Setup Android SDK
         uses: android-actions/setup-android@v4
         with:
@@ -40,6 +40,9 @@ jobs:
         run: |
           sdkmanager --version
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+
+      - name: Check project version
+        run: npm run check:version
 
       - name: Check source package hygiene
         run: |
@@ -63,11 +66,8 @@ jobs:
             npx cap add android
           fi
 
-      - name: Sync Capacitor to Android
-        run: npx cap sync android
-
-      - name: Sync Android version
-        run: npm run sync:android-version
+      - name: Prepare Android project
+        run: npm run android:prepare
 
       - name: Make gradlew executable
         working-directory: android
@@ -83,17 +83,47 @@ jobs:
         run: |
           APP_VERSION=$(node -p "require('./package.json').version")
           APK_NAME="Eu-Reciclo-v${APP_VERSION}.apk"
-          cp android/app/build/outputs/apk/debug/app-debug.apk "$APK_NAME"
+          mkdir -p release
+          cp android/app/build/outputs/apk/debug/app-debug.apk "release/$APK_NAME"
           echo "version=$APP_VERSION" >> "$GITHUB_OUTPUT"
           echo "name=$APK_NAME" >> "$GITHUB_OUTPUT"
+          echo "path=release/$APK_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: eu-reciclo-v${{ steps.apk.outputs.version }}
-          path: ${{ steps.apk.outputs.name }}
-          if-no-files-found: error
-          retention-days: 30
+      # GitHub Actions artifacts são baixados como ZIP. Para entregar o APK
+      # diretamente, publicamos o .apk como asset de uma GitHub Release.
+      - name: Publish APK directly to GitHub Release
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK_VERSION: ${{ steps.apk.outputs.version }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+        shell: bash
+        run: |
+          TAG="v${APK_VERSION}"
+          TITLE="Eu Reciclo v${APK_VERSION}"
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK_PATH" --clobber
+          else
+            gh release create "$TAG" "$APK_PATH" \
+              --title "$TITLE" \
+              --notes "APK Android gerado automaticamente para a versão ${APK_VERSION}."
+          fi
+
+      - name: Verify release APK
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APK_VERSION: ${{ steps.apk.outputs.version }}
+          APK_NAME: ${{ steps.apk.outputs.name }}
+        shell: bash
+        run: |
+          TAG="v${APK_VERSION}"
+          COUNT=$(gh release view "$TAG" --json assets --jq ".assets | map(select(.name == \"${APK_NAME}\")) | length")
+          if [ "$COUNT" -ne 1 ]; then
+            echo "::error::A Release $TAG não contém exatamente um arquivo $APK_NAME."
+            exit 1
+          fi
 
       - name: Build summary
         run: |
@@ -102,11 +132,10 @@ jobs:
           echo "**Versão:** \`${{ steps.apk.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "**Branch:** \`${{ github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "**Commit:** \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "**APK:** \`${{ steps.apk.outputs.name }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          APK_PATH="${{ steps.apk.outputs.name }}"
-          if [ -f "$APK_PATH" ]; then
-            SIZE=$(du -sh "$APK_PATH" | cut -f1)
-            echo "**APK gerado:** \`$APK_PATH\` ($SIZE)" >> "$GITHUB_STEP_SUMMARY"
-            echo "" >> "$GITHUB_STEP_SUMMARY"
-            echo "> 📥 Baixe em **Actions → este run → Artifacts → eu-reciclo-v${{ steps.apk.outputs.version }}**" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "> 📥 O APK está na aba **Releases** como arquivo .apk direto (não dentro de artifact ZIP)." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "> Pull request validado sem publicar Release." >> "$GITHUB_STEP_SUMMARY"
           fi
