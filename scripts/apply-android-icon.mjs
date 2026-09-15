@@ -34,7 +34,11 @@ copyFileSync(join(sourceRoot, 'drawable', 'ic_launcher_foreground.png'), join(dr
 copyFileSync(join(sourceRoot, 'drawable', 'splash_logo.png'), join(drawable, 'splash_logo.png'))
 writeFileSync(join(drawable, 'splash_background.xml'), `<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="#F8FBF9" />
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#F8FBF9" />
+        </shape>
+    </item>
     <item android:gravity="center">
         <bitmap android:src="@drawable/splash_logo" android:gravity="center" />
     </item>

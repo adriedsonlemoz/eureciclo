@@ -161,6 +161,11 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.4.4', date:'Set 2026', changes:[
+    'Corrigido o build Android da splash nativa que falhava na etapa processDebugResources',
+    'Fundo da splash agora usa um drawable Android válido sem perder a identidade do Eu Reciclo',
+    'Adicionado teste de regressão para impedir o retorno desse erro'
+  ]},
   { version:'1.4.3', date:'Set 2026', changes:[
     'Launcher e splash nativa corrigidos para usar a identidade oficial do Eu Reciclo',
     'Onboarding compactado e protegido contra preços digitados muito acima das referências iniciais',

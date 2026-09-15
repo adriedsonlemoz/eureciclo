@@ -19,3 +19,9 @@ test('ícone Android usa apenas o recurso padrão de background', () => {
   assert.match(fullscreenScript, /SplashScreen\.installSplashScreen\(this\)/)
   assert.match(fullscreenScript, /androidx\.core\.splashscreen\.SplashScreen/)
 })
+
+test('splash background usa drawable válido em vez de cor literal no android:drawable', () => {
+  assert.doesNotMatch(script, /android:drawable=["']#[0-9A-Fa-f]{6,8}["']/)
+  assert.match(script, /<shape android:shape="rectangle">/)
+  assert.match(script, /<solid android:color="#F8FBF9" \/>/)
+})

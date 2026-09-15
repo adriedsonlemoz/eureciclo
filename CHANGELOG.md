@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.4 — 2026-09-15
+
+- Corrigido o build Android que falhava em `processDebugResources` por uso inválido de cor hexadecimal diretamente em `android:drawable` na splash nativa.
+- O fundo da splash agora é gerado como um `shape` drawable válido com `solid android:color`, preservando a identidade visual do Eu Reciclo.
+- Adicionado teste de regressão para impedir que cores literais voltem a ser usadas em atributos `android:drawable`.
+- GitHub Manager, `package.json`, `package-lock.json` e Android sincronizados em `1.4.4` / `10404`.
+
 ## 1.4.3 — 2026-09-15
 
 - Corrigidos launcher e splash nativa para usar a identidade oficial do Eu Reciclo em vez dos recursos padrão do template Android.
