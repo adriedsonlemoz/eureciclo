@@ -36,6 +36,7 @@ const routeOrder = {
   '/': 0,
   '/calculator': 1,
   '/sales': 2,
+  '/meta-compra': 2.5,
   '/materials': 3,
   '/sobre': 4
 }

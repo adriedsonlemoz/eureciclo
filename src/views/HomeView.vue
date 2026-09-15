@@ -63,6 +63,29 @@
       </div>
     </section>
 
+    <!-- Purchase goal quick-access -->
+    <section class="px-5 mt-4 animate-fade-up">
+      <button @click="router.push('/meta-compra')"
+              class="w-full glass-card-bright rounded-3xl p-4 flex items-center gap-4 text-left transition-all active:scale-[0.98]">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0"
+             style="background:linear-gradient(135deg,#dcfce7,#bbf7d0);">
+          🎯
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <h2 class="font-app font-black text-sm text-slate-700">Meta de compra</h2>
+            <span class="pill" style="background:#f0fdf4;color:#15803d;">Novo</span>
+          </div>
+          <p class="font-app text-xs text-slate-400 mt-1 leading-relaxed">
+            Descubra quantas latinhas ou quantos kg precisa juntar para comprar arroz, óleo ou qualquer outro produto.
+          </p>
+        </div>
+        <svg class="w-5 h-5 text-eco-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+          <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </section>
+
     <!-- Category quick-access -->
     <section class="px-5 mt-6">
       <div class="flex items-center justify-between mb-3">

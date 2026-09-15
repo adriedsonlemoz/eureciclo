@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0 — 2026-09-15
+
+- Adicionada a tela **Meta de compra**.
+- A lista de compras aceita vários produtos e soma os valores automaticamente.
+- O usuário escolhe um material e vê quantas unidades ou kg precisa juntar para pagar a compra.
+- Para alumínio/latas e PET, o resultado é arredondado para uma unidade inteira para não ficar abaixo do valor-alvo.
+- O progresso considera a quantidade já informada na Calculadora e mostra quanto ainda falta.
+- Metas podem ser salvas, reabertas e excluídas.
+- Metas salvas passaram a fazer parte do backup/restauração JSON.
+- Adicionados testes específicos dos cálculos de meta.
+
 ## 1.1.1 — 2026-09-15
 
 - Corrigida reutilização de IDs de materiais.

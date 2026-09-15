@@ -28,6 +28,7 @@ const route = useRoute()
 
 function isActive(item) {
   if (item.exact) return route.path === item.path
+  if (item.matches?.includes(route.path)) return true
   return route.path === item.path || route.path.startsWith(item.path + '/')
 }
 
@@ -84,7 +85,7 @@ const AboutIcon = ({ active }) => h('svg', {
 
 const navItems = [
   { path: '/',           label: 'Início',    icon: HomeIcon,  exact: true },
-  { path: '/calculator', label: 'Calcular',  icon: CalcIcon },
+  { path: '/calculator', label: 'Calcular',  icon: CalcIcon, matches: ['/meta-compra'] },
   { path: '/sales',      label: 'Vendas',    icon: SalesIcon },
   { path: '/materials',  label: 'Materiais', icon: ListIcon },
   { path: '/sobre',      label: 'Sobre',     icon: AboutIcon },

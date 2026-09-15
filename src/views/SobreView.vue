@@ -25,7 +25,7 @@
 
       <section class="glass-card rounded-3xl p-5">
         <div class="flex items-center gap-2 mb-2"><span class="text-lg">💾</span><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Backup dos dados</h2></div>
-        <p class="font-app text-xs text-slate-400 leading-relaxed mb-4">Exporte materiais, preços, quantidades, nome e vendas para um arquivo JSON. Ao importar, os dados atuais são substituídos pelo backup.</p>
+        <p class="font-app text-xs text-slate-400 leading-relaxed mb-4">Exporte materiais, preços, quantidades, nome, vendas e metas de compra para um arquivo JSON. Ao importar, os dados atuais são substituídos pelo backup.</p>
         <div class="grid grid-cols-2 gap-2">
           <button @click="doExport" class="py-3 rounded-2xl font-app font-bold text-sm text-white active:scale-95" style="background:linear-gradient(135deg,#22c55e,#15803d);">Exportar</button>
           <button @click="fileInput?.click()" class="py-3 rounded-2xl font-app font-bold text-sm text-eco-700 active:scale-95" style="background:#f0fdf4;border:1px solid #bbf7d0;">Importar</button>
@@ -93,6 +93,12 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.2.0', date:'Set 2026', changes:[
+    'Nova Meta de compra para transformar preços de produtos em quantidade de recicláveis',
+    'Lista permite somar vários produtos, como arroz e óleo, em uma única meta',
+    'Cálculo mostra unidades ou kg necessários e o quanto ainda falta com base na Calculadora',
+    'Metas podem ser salvas e passam a fazer parte do backup do aplicativo'
+  ]},
   { version:'1.1.1', date:'Set 2026', changes:[
     'Corrigida reutilização de IDs ao excluir e criar materiais',
     'Quantidades vinculadas agora são removidas junto com o material',

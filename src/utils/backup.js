@@ -8,5 +8,6 @@ export function validateBackupPayload(payload) {
   if (!Array.isArray(payload.data.materials)) return { ok: false, error: 'Lista de materiais inválida.' }
   if (!Array.isArray(payload.data.sales)) return { ok: false, error: 'Histórico de vendas inválido.' }
   if (!payload.data.quantities || typeof payload.data.quantities !== 'object' || Array.isArray(payload.data.quantities)) return { ok: false, error: 'Quantidades inválidas.' }
+  if (payload.data.purchaseGoals !== undefined && !Array.isArray(payload.data.purchaseGoals)) return { ok: false, error: 'Metas de compra inválidas.' }
   return { ok: true }
 }

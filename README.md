@@ -4,8 +4,8 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 
 ## Versão
 
-- App: **1.1.1**
-- Android `versionCode`: **10101** (gerado automaticamente a partir da versão)
+- App: **1.2.0**
+- Android `versionCode`: **10200** (gerado automaticamente a partir da versão)
 - Application ID: `com.eureciclo.app`
 
 ## Stack
@@ -26,6 +26,8 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 - Cadastro, edição e exclusão de materiais
 - Preços personalizados por kg
 - Histórico de vendas com snapshot dos itens
+- Meta de compra: converte o preço de produtos em latinhas, unidades ou kg necessários
+- Lista de compras com vários produtos e metas salvas
 - Backup e restauração em JSON
 - Funcionamento offline
 - Build de APK pelo GitHub Actions
@@ -72,7 +74,7 @@ cd android
 
 ## Persistência e segurança dos dados
 
-Os dados ficam no dispositivo. Use **Sobre → Backup dos dados → Exportar** periodicamente. O arquivo inclui materiais, preços, quantidades atuais, nome e histórico de vendas.
+Os dados ficam no dispositivo. Use **Sobre → Backup dos dados → Exportar** periodicamente. O arquivo inclui materiais, preços, quantidades atuais, nome, histórico de vendas e metas de compra.
 
 ## Estrutura
 

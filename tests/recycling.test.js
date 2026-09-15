@@ -34,3 +34,24 @@ test('backup válido é aceito e backup de outro app é rejeitado', () => {
   assert.equal(validateBackupPayload(base).ok, true)
   assert.equal(validateBackupPayload({ ...base, app: 'Outro App' }).ok, false)
 })
+
+test('meta de R$ 33 com latas a R$ 6/kg e 70 latas/kg exige 385 latinhas', async () => {
+  const { calculateRequiredQuantity, quantityToKg } = await import('../src/utils/recycling.js')
+  const material = { unitType: 'units', unitsPerKg: 70, pricePerKg: 6 }
+  assert.equal(calculateRequiredQuantity(material, 33), 385)
+  assert.equal(quantityToKg(material, 385), 5.5)
+})
+
+test('meta por peso arredonda para cima em gramas para não ficar abaixo do valor', async () => {
+  const { calculateRequiredQuantity, calculateMaterialValue } = await import('../src/utils/recycling.js')
+  const material = { unitType: 'weight', pricePerKg: 3 }
+  const qty = calculateRequiredQuantity(material, 10)
+  assert.equal(qty, 3.334)
+  assert.ok(calculateMaterialValue(material, qty) >= 10)
+})
+
+test('meta inválida ou material sem preço retorna zero', async () => {
+  const { calculateRequiredQuantity } = await import('../src/utils/recycling.js')
+  assert.equal(calculateRequiredQuantity({ unitType: 'weight', pricePerKg: 0 }, 10), 0)
+  assert.equal(calculateRequiredQuantity({ unitType: 'units', unitsPerKg: 70, pricePerKg: 6 }, 0), 0)
+})

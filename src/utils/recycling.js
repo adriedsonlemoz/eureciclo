@@ -21,3 +21,37 @@ export function calculateMaterialValue(material, quantity) {
   }
   return qty * price
 }
+
+/**
+ * Calcula a quantidade mínima de um material necessária para atingir um valor-alvo.
+ * Materiais por unidade são arredondados para cima para nunca faltar dinheiro.
+ * Materiais por peso são arredondados para cima em gramas (0,001 kg).
+ */
+export function calculateRequiredQuantity(material, targetValue) {
+  const target = Number(targetValue)
+  const pricePerKg = Number(material?.pricePerKg)
+
+  if (!material || !Number.isFinite(target) || target <= 0) return 0
+  if (!Number.isFinite(pricePerKg) || pricePerKg <= 0) return 0
+
+  if (material.unitType === 'units') {
+    const unitsPerKg = Number(material.unitsPerKg)
+    if (!Number.isFinite(unitsPerKg) || unitsPerKg <= 0) return 0
+    const pricePerUnit = pricePerKg / unitsPerKg
+    return Math.ceil(target / pricePerUnit)
+  }
+
+  const kilograms = target / pricePerKg
+  return Math.ceil(kilograms * 1000) / 1000
+}
+
+export function quantityToKg(material, quantity) {
+  const qty = Number(quantity)
+  if (!material || !Number.isFinite(qty) || qty <= 0) return 0
+  if (material.unitType === 'units') {
+    const unitsPerKg = Number(material.unitsPerKg)
+    if (!Number.isFinite(unitsPerKg) || unitsPerKg <= 0) return 0
+    return qty / unitsPerKg
+  }
+  return qty
+}

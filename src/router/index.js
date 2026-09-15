@@ -28,6 +28,12 @@ const routes = [
     meta: { title: 'Vendas' }
   },
   {
+    path: '/meta-compra',
+    name: 'purchase-goal',
+    component: () => import('@/views/PurchaseGoalView.vue'),
+    meta: { title: 'Meta de compra' }
+  },
+  {
     path: '/materials',
     name: 'materials',
     component: () => import('@/views/MaterialsView.vue'),
