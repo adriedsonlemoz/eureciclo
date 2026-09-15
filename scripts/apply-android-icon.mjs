@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const resRoot = 'android/app/src/main/res'
@@ -40,8 +40,16 @@ const adaptiveXml = `<?xml version="1.0" encoding="utf-8"?>
 writeFileSync(join(adaptive, 'ic_launcher.xml'), adaptiveXml)
 writeFileSync(join(adaptive, 'ic_launcher_round.xml'), adaptiveXml)
 
+// Capacitor já cria ic_launcher_background.xml. Reutilizamos o mesmo recurso
+// em vez de declarar @color/ic_launcher_background em um segundo arquivo,
+// o que faria o Android Resource Merger falhar com "Duplicate resources".
 const values = join(resRoot, 'values')
 mkdirSync(values, { recursive: true })
-writeFileSync(join(values, 'eu_reciclo_icon.xml'), `<?xml version="1.0" encoding="utf-8"?>\n<resources><color name="ic_launcher_background">#15803D</color></resources>\n`)
+const legacyCustomColor = join(values, 'eu_reciclo_icon.xml')
+if (existsSync(legacyCustomColor)) rmSync(legacyCustomColor)
+writeFileSync(
+  join(values, 'ic_launcher_background.xml'),
+  `<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#15803D</color>\n</resources>\n`
+)
 
-console.log('Ícone Eu Reciclo aplicado aos recursos Android.')
+console.log('Ícone Eu Reciclo aplicado aos recursos Android sem recursos duplicados.')

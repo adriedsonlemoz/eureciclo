@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.1 — 2026-09-15
+
+- Corrigido o build Android que falhava em `mergeDebugResources` por definição duplicada de `ic_launcher_background`.
+- O script do ícone agora reutiliza o recurso padrão `values/ic_launcher_background.xml` do Android em vez de criar uma segunda definição.
+- O script remove automaticamente o arquivo legado `eu_reciclo_icon.xml` caso exista, evitando regressão em builds incrementais.
+- Adicionado teste de regressão para impedir que o recurso duplicado do launcher volte ao projeto.
+- Ícone oficial e modo de tela cheia da 1.4.0 foram preservados.
+- GitHub Manager, `package.json`, `package-lock.json` e Android sincronizados em `1.4.1` / `10401`.
+
 ## 1.4.0 — 2026-09-15
 
 - Calculadora compactada para exibir mais materiais por tela sem perder preço, conversão e resultado.

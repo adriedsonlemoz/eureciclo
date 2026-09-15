@@ -149,6 +149,11 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.4.1', date:'Set 2026', changes:[
+    'Corrigido o build Android que falhava por recurso duplicado do fundo do ícone',
+    'Aplicação do ícone agora reutiliza o recurso padrão do Capacitor sem criar duplicidade',
+    'Ícone oficial, tela cheia e melhorias da 1.4.0 preservados'
+  ]},
   { version:'1.4.0', date:'Set 2026', changes:[
     'Calculadora compactada para exibir mais materiais por tela',
     'Safe area e espaçamento inferior corrigidos para evitar conteúdo sob a navegação',
