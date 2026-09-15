@@ -13,27 +13,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ── 1. Checkout ──────────────────────────────────────────────────────────
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      # ── 2. Node.js ───────────────────────────────────────────────────────────
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
-      # ── 3. Java (required by Gradle / Android SDK) ───────────────────────────
       - name: Setup Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # ── 4. Android SDK ───────────────────────────────────────────────────────
+      # O pacote legado "tools" deixou de existir no repositório atual do SDK.
+      # packages: '' evita o default antigo "tools platform-tools"; o runner já
+      # traz o Android SDK e o Gradle instala os componentes exigidos pelo projeto.
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Verify Android SDK
+        run: |
+          sdkmanager --version
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
 
       - name: Check source package hygiene
         run: |
@@ -42,62 +48,65 @@ jobs:
             exit 1
           fi
 
-      # ── 5. Dependencies ──────────────────────────────────────────────────────
       - name: Install npm dependencies
         run: npm ci
 
-      # ── 6. Testes rápidos ─────────────────────────────────────────────────────
       - name: Run tests
         run: npm test
 
-      # ── 7. Web build ─────────────────────────────────────────────────────────
       - name: Build web assets (Vite)
         run: npm run build
 
-      # ── 8. Add Android platform (if not present) ─────────────────────────────
       - name: Add Android platform (if needed)
         run: |
           if [ ! -d "android" ]; then
             npx cap add android
           fi
 
-      # ── 9. Capacitor sync ────────────────────────────────────────────────────
       - name: Sync Capacitor to Android
         run: npx cap sync android
 
       - name: Sync Android version
         run: npm run sync:android-version
 
-      # ── 10. Grant Gradle execute permission ───────────────────────────────────
       - name: Make gradlew executable
         working-directory: android
         run: chmod +x gradlew
 
-      # ── 11. Build APK ─────────────────────────────────────────────────────────
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
-      # ── 12. Upload artifact ──────────────────────────────────────────────────
+      - name: Prepare versioned APK
+        id: apk
+        shell: bash
+        run: |
+          APP_VERSION=$(node -p "require('./package.json').version")
+          APK_NAME="Eu-Reciclo-v${APP_VERSION}.apk"
+          cp android/app/build/outputs/apk/debug/app-debug.apk "$APK_NAME"
+          echo "version=$APP_VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$APK_NAME" >> "$GITHUB_OUTPUT"
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: eu-reciclo-apk-${{ github.run_number }}
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: eu-reciclo-v${{ steps.apk.outputs.version }}
+          path: ${{ steps.apk.outputs.name }}
+          if-no-files-found: error
           retention-days: 30
 
-      # ── 13. Summary ──────────────────────────────────────────────────────────
       - name: Build summary
         run: |
-          echo "## ✅ APK Build concluído!" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          APK_PATH="android/app/build/outputs/apk/debug/app-debug.apk"
+          echo "## ✅ APK Build concluído!" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Versão:** \`${{ steps.apk.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Commit:** \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          APK_PATH="${{ steps.apk.outputs.name }}"
           if [ -f "$APK_PATH" ]; then
             SIZE=$(du -sh "$APK_PATH" | cut -f1)
-            echo "**APK gerado:** \`app-debug.apk\` ($SIZE)" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "> 📥 Baixe o APK em **Actions → este run → Artifacts**" >> $GITHUB_STEP_SUMMARY
+            echo "**APK gerado:** \`$APK_PATH\` ($SIZE)" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "> 📥 Baixe em **Actions → este run → Artifacts → eu-reciclo-v${{ steps.apk.outputs.version }}**" >> "$GITHUB_STEP_SUMMARY"
           fi

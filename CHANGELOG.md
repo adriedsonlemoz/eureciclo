@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.1 — 2026-09-15
+
+- Corrigido o workflow Android que falhava no `setup-android` ao tentar instalar o pacote legado `tools`.
+- Atualizado `android-actions/setup-android` para v4 com instalação de pacotes adicionais desativada, evitando a falha `Failed to find package 'tools'`.
+- Atualizados checkout/setup-node/setup-java para versões com runtime Node 24 e o Node do projeto no CI para 22.
+- Adicionada verificação do Android SDK antes do build.
+- APK do workflow agora é renomeado com a versão, por exemplo `Eu-Reciclo-v1.2.1.apk`.
+- `versionName` e `versionCode` seguem sincronizados automaticamente (`1.2.1` / `10201`).
+
 ## 1.2.0 — 2026-09-15
 
 - Adicionada a tela **Meta de compra**.

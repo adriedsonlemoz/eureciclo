@@ -4,8 +4,8 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 
 ## Versão
 
-- App: **1.2.0**
-- Android `versionCode`: **10200** (gerado automaticamente a partir da versão)
+- App: **1.2.1**
+- Android `versionCode`: **10201** (gerado automaticamente a partir da versão)
 - Application ID: `com.eureciclo.app`
 
 ## Stack
@@ -43,7 +43,7 @@ Os valores são apenas pontos de partida e podem ser alterados no primeiro uso:
 
 ## Desenvolvimento
 
-Pré-requisitos: Node.js 20+, npm e Java 17 para Android.
+Pré-requisitos: Node.js 22+, npm e Java 17 para Android.
 
 ```bash
 npm ci

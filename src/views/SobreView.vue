@@ -93,6 +93,11 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.2.1', date:'Set 2026', changes:[
+    'Corrigido o workflow Android que falhava ao tentar instalar o pacote legado tools',
+    'SDK Android atualizado para setup-android v4 e Node do CI atualizado',
+    'APK do GitHub Actions agora recebe o número da versão no nome do arquivo'
+  ]},
   { version:'1.2.0', date:'Set 2026', changes:[
     'Nova Meta de compra para transformar preços de produtos em quantidade de recicláveis',
     'Lista permite somar vários produtos, como arroz e óleo, em uma única meta',
