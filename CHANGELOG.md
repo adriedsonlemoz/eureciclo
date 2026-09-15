@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.4.3 — 2026-09-15
+
+- Corrigidos launcher e splash nativa para usar a identidade oficial do Eu Reciclo em vez dos recursos padrão do template Android.
+- Manifest e tema de lançamento Android passam a ser sincronizados automaticamente durante `android:prepare`.
+- Onboarding ficou mais compacto, priorizando materiais principais e deixando os demais recolhidos.
+- Entrada de preço ganhou instrução explícita (`7` ou `7,00`) e confirmação para valores muito acima das referências iniciais do app.
+- Filtros horizontais da Calculadora e Materiais ganharam indicação/controle de continuação.
+- Feedback após salvar venda ficou menor e menos intrusivo.
+- Vendas agora separam valor estimado do valor realmente recebido e aceitam comprador/local opcional.
+- Exclusão de material saiu da lista principal e foi movida para a tela de edição com confirmação.
+- Novo/Editar Material passou a escolher cor automaticamente pela categoria; personalização visual ficou opcional.
+- Histórico de mudanças em Ajustes passou a ficar recolhido por padrão.
+- GitHub Manager, `package.json`, `package-lock.json` e Android sincronizados em `1.4.3` / `10403`.
+
 ## 1.4.2 — 2026-09-15
 
 - Corrigido o pacote-fonte: os recursos binários do ícone Android agora são incluídos no ZIP enviado ao GitHub.

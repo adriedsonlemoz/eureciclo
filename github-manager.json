@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "name": "Eu Reciclo",
-  "versionName": "1.4.2",
-  "versionCode": 10402,
+  "versionName": "1.4.3",
+  "versionCode": 10403,
   "applicationId": "com.eureciclo.app",
   "namespace": "com.eureciclo.app",
   "type": "Android",
@@ -29,6 +29,11 @@
     "Funcionamento offline",
     "Modo Android em tela cheia imersivo",
     "Ícone oficial integrado ao Android e ao app",
-    "APK direto em GitHub Release"
+    "APK direto em GitHub Release",
+    "Splash nativa e launcher Android com identidade oficial do Eu Reciclo",
+    "Onboarding compacto com alerta para preços muito fora do padrão inicial",
+    "Vendas com valor estimado, valor recebido e comprador/local",
+    "Filtros horizontais com indicador de continuação e rolagem assistida",
+    "Personalização visual de materiais opcional com cor automática por categoria"
   ]
 }

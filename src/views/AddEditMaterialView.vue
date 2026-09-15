@@ -39,23 +39,6 @@
           Identificação
         </label>
         <div class="glass-card rounded-2xl overflow-hidden">
-          <!-- Icon picker -->
-          <div class="px-4 py-3 border-b border-eco-50">
-            <p class="text-slate-400 text-xs font-app mb-2">Ícone</p>
-            <div class="flex gap-2 flex-wrap">
-              <button
-                v-for="em in iconOptions"
-                :key="em"
-                type="button"
-                @click="form.icon = em"
-                class="w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all active:scale-90"
-                :style="form.icon === em
-                  ? `background:${form.accentColor}25; border: 2px solid ${form.accentColor}70`
-                  : 'background: #f0fdf4; border: 1.5px solid #e2f5e8'"
-              ><MaterialIcon :legacy-icon="em" class="w-5 h-5" /></button>
-            </div>
-          </div>
-
           <!-- Name -->
           <div class="px-4 py-3 border-b border-eco-50">
             <p class="text-slate-400 text-xs font-app mb-1.5">Nome do material *</p>
@@ -88,7 +71,7 @@
                 v-for="cat in categories"
                 :key="cat.key"
                 type="button"
-                @click="form.category = cat.key"
+                @click="selectCategory(cat.key)"
                 class="py-2 px-3 rounded-xl text-xs font-app font-bold transition-all active:scale-95 flex items-center gap-2"
                 :style="form.category === cat.key
                   ? `background: ${categoryColors[cat.key].bg}; border: 1.5px solid ${categoryColors[cat.key].border}; color: ${categoryColors[cat.key].text}`
@@ -100,22 +83,30 @@
             </div>
           </div>
 
-          <!-- Accent color -->
           <div class="px-4 py-3">
-            <p class="text-slate-400 text-xs font-app mb-2">Cor de destaque</p>
-            <div class="flex gap-2 flex-wrap">
-              <button
-                v-for="col in colorOptions"
-                :key="col"
-                type="button"
-                @click="form.accentColor = col"
-                class="w-8 h-8 rounded-xl transition-all active:scale-90 relative shadow-sm"
-                :style="{ background: col, border: form.accentColor === col ? `2.5px solid #0f172a` : '2px solid transparent' }"
-              >
-                <span v-if="form.accentColor === col"
-                      class="absolute inset-0 flex items-center justify-center text-white text-xs font-bold drop-shadow">✓</span>
-              </button>
-            </div>
+            <button type="button" @click="customAppearance = !customAppearance" class="w-full flex items-center justify-between gap-3 text-left">
+              <div>
+                <p class="text-slate-600 text-xs font-app font-bold">Personalizar aparência <span class="text-slate-400 font-normal">(opcional)</span></p>
+                <p class="text-slate-400 text-[11px] font-app mt-0.5">Ícone e cor são escolhidos automaticamente pela categoria.</p>
+              </div>
+              <svg class="w-4 h-4 text-slate-400 transition-transform" :style="customAppearance ? 'transform:rotate(180deg)' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <transition name="field-toggle">
+              <div v-if="customAppearance" class="mt-4 pt-4" style="border-top:1px solid #f0fdf4;">
+                <p class="text-slate-400 text-xs font-app mb-2">Ícone</p>
+                <div class="flex gap-2 flex-wrap mb-4">
+                  <button v-for="em in iconOptions" :key="em" type="button" @click="form.icon = em" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-90" :style="form.icon === em ? `background:${form.accentColor}25;border:2px solid ${form.accentColor}70` : 'background:#f8fafc;border:1.5px solid #e2e8f0'">
+                    <MaterialIcon :legacy-icon="em" class="w-5 h-5" />
+                  </button>
+                </div>
+                <p class="text-slate-400 text-xs font-app mb-2">Cor de destaque</p>
+                <div class="flex gap-2 flex-wrap">
+                  <button v-for="col in colorOptions" :key="col" type="button" @click="form.accentColor = col" class="w-8 h-8 rounded-xl transition-all active:scale-90 relative shadow-sm" :style="{ background: col, border: form.accentColor === col ? '2.5px solid #0f172a' : '2px solid transparent' }">
+                    <span v-if="form.accentColor === col" class="absolute inset-0 flex items-center justify-center text-white text-xs font-bold drop-shadow">✓</span>
+                  </button>
+                </div>
+              </div>
+            </transition>
           </div>
         </div>
       </div>
@@ -143,6 +134,8 @@
                 @blur="onPriceBlur"
               />
             </div>
+            <p class="text-slate-400 text-[11px] font-app mt-1.5">Digite em reais: <strong>7</strong> ou <strong>7,00</strong> = R$ 7,00.</p>
+            <p v-if="priceLooksHigh" class="text-amber-600 text-[11px] font-app mt-1.5">Valor alto: confirme se {{ formatCurrency(form.pricePerKg) }}/kg está correto. O app não converte 700 em 7,00 automaticamente.</p>
             <p v-if="errors.pricePerKg" class="text-red-500 text-xs font-app mt-1">{{ errors.pricePerKg }}</p>
           </div>
 
@@ -227,8 +220,23 @@
                 style="background: #f8fafc; border: 1px solid #e2e8f0;">
           Cancelar
         </button>
+
+        <button v-if="isEdit" type="button" @click="deleteConfirm = true" class="w-full mt-6 py-3 rounded-2xl font-app font-bold text-sm text-red-500 active:scale-95" style="background:#fff5f5;border:1px solid #fecaca;">Excluir material</button>
       </div>
     </form>
+
+    <transition name="modal">
+      <div v-if="deleteConfirm" class="fixed inset-0 z-50 flex items-end justify-center px-5 modal-safe-bottom" style="background:rgba(0,0,0,.42);backdrop-filter:blur(4px);" @click.self="deleteConfirm = false">
+        <div class="w-full max-w-sm bg-white rounded-3xl p-5">
+          <h3 class="font-app font-bold text-lg text-slate-800">Excluir material?</h3>
+          <p class="font-app text-sm text-slate-400 mt-1">“{{ form.name }}” e a quantidade atualmente associada a ele serão removidos. Vendas antigas continuam preservadas.</p>
+          <div class="grid grid-cols-2 gap-3 mt-5">
+            <button @click="deleteConfirm = false" class="py-3 rounded-2xl font-app font-bold text-sm text-slate-500" style="background:#f1f5f9;border:1px solid #e2e8f0;">Cancelar</button>
+            <button @click="deleteCurrentMaterial" class="py-3 rounded-2xl font-app font-bold text-sm text-white" style="background:linear-gradient(135deg,#ef4444,#dc2626);">Excluir</button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -241,7 +249,7 @@ import { formatPriceInput, normalizeLocaleInput } from '@/utils/number'
 
 const route = useRoute()
 const router = useRouter()
-const { categories, categoryColors, getMaterial, addMaterial, updateMaterial, formatCurrency } = useMaterials()
+const { categories, categoryColors, getMaterial, addMaterial, updateMaterial, deleteMaterial, formatCurrency } = useMaterials()
 
 const isEdit = computed(() => route.meta.mode === 'edit')
 const matId = computed(() => route.params.id)
@@ -249,11 +257,13 @@ const matId = computed(() => route.params.id)
 const form = ref({
   name: '', description: '', category: 'outros',
   pricePerKg: 3, unitType: 'weight', unitsPerKg: '',
-  icon: '♻️', accentColor: '#22c55e'
+  icon: '', accentColor: '#16a34a'
 })
 const errors = ref({})
 const saving = ref(false)
 const showToast = ref(false)
+const customAppearance = ref(false)
+const deleteConfirm = ref(false)
 
 // Price mask display
 const displayPrice = ref(formatPriceInput(3))
@@ -276,6 +286,20 @@ function onUnitsPerKgInput(event) {
   event.target.value = normalized.display
 }
 
+
+const categoryDefaultColors = {
+  metais: '#64748b', plasticos: '#3b82f6', papel: '#d97706', vidro: '#0f766e', baterias: '#7c3aed', outros: '#16a34a'
+}
+
+function selectCategory(key) {
+  form.value.category = key
+  if (!customAppearance.value) {
+    form.value.accentColor = categoryDefaultColors[key] || '#16a34a'
+    form.value.icon = ''
+  }
+}
+
+const priceLooksHigh = computed(() => Number(form.value.pricePerKg || 0) >= 200)
 const iconOptions = ['♻️','🥫','🧴','⚡','🔧','📦','🫙','🔩','🌿','💎','🪨','🔋','📱','🖥️','🚗']
 const colorOptions = ['#22c55e','#60a5fa','#f59e0b','#f87171','#a78bfa','#5eead4','#fb7185','#d97706','#9ca3af','#c084fc','#34d399','#fcd34d']
 const unitTypes = [
@@ -291,7 +315,7 @@ onMounted(() => {
         name: mat.name, description: mat.description || '',
         category: mat.category, pricePerKg: mat.pricePerKg,
         unitType: mat.unitType, unitsPerKg: mat.unitsPerKg || '',
-        icon: mat.icon || '♻️', accentColor: mat.accentColor || '#22c55e'
+        icon: mat.icon || '', accentColor: mat.accentColor || '#16a34a'
       }
       displayPrice.value = formatPriceInput(mat.pricePerKg)
     }
@@ -317,6 +341,13 @@ async function save() {
   saving.value = false
   showToast.value = true
   setTimeout(() => { showToast.value = false; router.push('/materials') }, 1200)
+}
+
+function deleteCurrentMaterial() {
+  if (!isEdit.value) return
+  deleteMaterial(matId.value)
+  deleteConfirm.value = false
+  router.replace('/materials')
 }
 
 function goBack() { router.back() }

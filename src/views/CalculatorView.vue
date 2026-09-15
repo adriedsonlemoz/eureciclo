@@ -9,13 +9,15 @@
         </button>
       </div>
       <div class="relative category-scroller">
-        <div class="flex gap-1.5 overflow-x-auto pb-1 pr-8 no-scrollbar">
+        <div ref="categoryScroller" class="flex gap-1.5 overflow-x-auto pb-1 pr-10 no-scrollbar scroll-smooth">
           <button v-for="cat in visibleCategories" :key="cat.key" @click="selectCategory(cat.key)" class="cat-tab cat-tab-compact shrink-0" :class="activeCategory === cat.key ? 'active' : ''">
             <MaterialIcon :category="cat.key" class="w-3.5 h-3.5" />
             <span>{{ cat.label }}</span>
           </button>
         </div>
-        <div class="category-scroll-fade" aria-hidden="true"></div>
+        <button v-if="visibleCategories.length > 4" type="button" @click="scrollCategories" class="category-scroll-control" aria-label="Ver mais categorias">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
       </div>
     </header>
 
@@ -90,7 +92,7 @@
             </div>
             <p class="text-white/55 text-[10px] font-app">{{ filledCount }} material{{ filledCount !== 1 ? 'is' : '' }} · total estimado</p>
           </div>
-          <button @click="saveSale" class="shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-xl active:scale-95" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);">
+          <button @click="beginSaveSale" class="shrink-0 flex items-center gap-2 px-3.5 py-2.5 rounded-xl active:scale-95" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);">
             <svg class="w-4 h-4 text-white" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
             <span class="text-white text-xs font-app font-bold">Salvar</span>
           </button>
@@ -99,18 +101,58 @@
     </transition>
 
     <transition name="toast">
-      <div v-if="saveFeedback" class="fixed left-5 right-5 z-50 rounded-2xl p-4 text-white save-feedback" :style="saveFeedback.type === 'duplicate' ? 'background:#92400e' : 'background:#15803d'">
-        <div class="flex items-start gap-3">
-          <svg v-if="saveFeedback.type === 'duplicate'" class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.6 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"/></svg>
-          <svg v-else class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>
-          <div class="flex-1 min-w-0">
-            <p class="font-app font-bold text-sm">{{ saveFeedback.message }}</p>
-            <p v-if="saveFeedback.type === 'saved'" class="font-app text-xs text-white/75 mt-1">Você pode limpar as quantidades ou continuar calculando.</p>
+      <div v-if="saveFeedback" class="fixed z-50 rounded-2xl px-3.5 py-3 text-white save-feedback compact-save-feedback" :style="saveFeedback.type === 'duplicate' ? 'background:#92400e' : 'background:#15803d'">
+        <div class="flex items-center gap-2.5">
+          <svg v-if="saveFeedback.type === 'duplicate'" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.6 2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"/></svg>
+          <svg v-else class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>
+          <p class="font-app font-bold text-xs flex-1 min-w-0">{{ saveFeedback.message }}</p>
+          <div v-if="saveFeedback.type === 'saved'" class="flex items-center gap-1 shrink-0">
+            <button @click="clearAfterSave" class="px-2 py-1.5 rounded-lg font-app font-bold text-[11px]" style="background:rgba(255,255,255,.18);">Limpar</button>
+            <button @click="saveFeedback = null" class="px-2 py-1.5 rounded-lg font-app font-bold text-[11px]" style="background:#fff;color:#15803d;">Continuar</button>
           </div>
         </div>
-        <div v-if="saveFeedback.type === 'saved'" class="grid grid-cols-2 gap-2 mt-3">
-          <button @click="clearAfterSave" class="py-2 rounded-xl font-app font-bold text-xs" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.22);">Limpar</button>
-          <button @click="saveFeedback = null" class="py-2 rounded-xl font-app font-bold text-xs" style="background:#fff;color:#15803d;">Continuar</button>
+      </div>
+    </transition>
+
+    <transition name="modal">
+      <div v-if="saleModalOpen" class="fixed inset-0 z-50 flex items-end justify-center px-5 modal-safe-bottom" style="background:rgba(0,0,0,.42);backdrop-filter:blur(4px);" @click.self="saleModalOpen = false">
+        <div class="w-full max-w-sm bg-white rounded-3xl p-5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <p class="font-app font-black text-lg text-slate-800">Registrar venda</p>
+              <p class="font-app text-xs text-slate-400 mt-1">A estimativa continua salva para comparação com o valor realmente recebido.</p>
+            </div>
+            <button @click="saleModalOpen = false" class="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400" style="background:#f8fafc;border:1px solid #e2e8f0;" aria-label="Fechar">×</button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mt-4">
+            <div class="rounded-xl p-3" style="background:#f8fafc;border:1px solid #e2e8f0;">
+              <p class="font-app text-[10px] uppercase tracking-wider text-slate-400 font-bold">Estimativa</p>
+              <p class="font-app font-black text-sm text-slate-700 mt-1">{{ formatCurrency(grandTotal) }}</p>
+            </div>
+            <div class="rounded-xl p-3" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+              <p class="font-app text-[10px] uppercase tracking-wider text-eco-700 font-bold">Peso</p>
+              <p class="font-app font-black text-sm text-eco-800 mt-1">{{ formatDecimal(totalKg, 2) }} kg</p>
+            </div>
+          </div>
+
+          <label class="block mt-4">
+            <span class="font-app text-xs text-slate-500 font-bold">Valor recebido</span>
+            <div class="relative mt-1.5">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 font-app text-sm font-bold text-slate-400">R$</span>
+              <input :value="saleDraft.receivedDisplay" @input="onReceivedInput" @blur="normalizeReceivedDisplay" type="text" inputmode="decimal" pattern="[0-9.,]*" enterkeyhint="next" class="input-eco w-full pl-10 pr-3 py-3 text-sm font-bold" />
+            </div>
+          </label>
+
+          <label class="block mt-3">
+            <span class="font-app text-xs text-slate-500 font-bold">Comprador / local <span class="font-normal text-slate-400">(opcional)</span></span>
+            <input v-model="saleDraft.buyer" type="text" maxlength="60" placeholder="Ex.: Ferro Velho Central" class="input-eco w-full px-3 py-3 text-sm mt-1.5" />
+          </label>
+
+          <div class="grid grid-cols-2 gap-3 mt-5">
+            <button @click="saleModalOpen = false" class="py-3 rounded-2xl font-app font-bold text-sm text-slate-500" style="background:#f1f5f9;border:1px solid #e2e8f0;">Cancelar</button>
+            <button @click="confirmSaveSale" class="py-3 rounded-2xl font-app font-bold text-sm text-white" style="background:linear-gradient(135deg,#22c55e,#15803d);">Salvar venda</button>
+          </div>
         </div>
       </div>
     </transition>
@@ -124,7 +166,7 @@ import MaterialIcon from '@/components/MaterialIcon.vue'
 import { useMaterials } from '@/composables/useMaterials'
 import { useSales } from '@/composables/useSales'
 import { useCalculator } from '@/composables/useCalculator'
-import { normalizeLocaleInput, formatLocaleNumber } from '@/utils/number'
+import { normalizeLocaleInput, formatLocaleNumber, formatPriceInput } from '@/utils/number'
 import { quantityToKg } from '@/utils/recycling'
 
 const route = useRoute()
@@ -133,12 +175,14 @@ const { addSale } = useSales()
 const { quantities, totalEstimate: grandTotal, totalKg, totalItems, setQty: setSharedQty, clearAll: clearShared } = useCalculator()
 
 const visibleCategories = computed(() => categories.filter(category => (byCategory.value[category.key] ?? []).length > 0))
+const categoryScroller = ref(null)
 const activeCategory = ref(route.query.cat || visibleCategories.value[0]?.key || 'metais')
 watch(() => route.query.cat, value => { if (value) activeCategory.value = value })
 watch(visibleCategories, list => {
   if (!list.some(category => category.key === activeCategory.value)) activeCategory.value = list[0]?.key || 'metais'
 })
 function selectCategory(key) { activeCategory.value = key }
+function scrollCategories() { categoryScroller.value?.scrollBy({ left: 180, behavior: 'smooth' }) }
 const currentMaterials = computed(() => byCategory.value[activeCategory.value] ?? [])
 
 const displayQty = ref({})
@@ -203,14 +247,11 @@ watch(currentSignature, signature => {
   if (lastSavedSignature.value && signature !== lastSavedSignature.value) saveFeedback.value = null
 })
 
-function saveSale() {
-  if (!currentSignature.value || currentSignature.value === '[]') return
-  if (currentSignature.value === lastSavedSignature.value) {
-    saveFeedback.value = { type: 'duplicate', message: 'Esta mesma venda já foi salva. Altere alguma quantidade antes de salvar novamente.' }
-    return
-  }
+const saleModalOpen = ref(false)
+const saleDraft = ref({ buyer: '', receivedValue: 0, receivedDisplay: '' })
 
-  const items = materials.value
+function buildSaleItems() {
+  return materials.value
     .filter(material => Number(quantities.value[String(material.id)] || 0) > 0)
     .map(material => {
       const qty = Number(quantities.value[String(material.id)])
@@ -225,10 +266,44 @@ function saveSale() {
         value: calcValue(material, qty)
       }
     })
+}
 
-  addSale({ items, total: grandTotal.value, totalKg: totalKg.value })
+function beginSaveSale() {
+  if (!currentSignature.value || currentSignature.value === '[]') return
+  if (currentSignature.value === lastSavedSignature.value) {
+    saveFeedback.value = { type: 'duplicate', message: 'Esta mesma venda já foi salva. Altere alguma quantidade antes de salvar novamente.' }
+    return
+  }
+  const estimate = Number(grandTotal.value || 0)
+  saleDraft.value = { buyer: '', receivedValue: estimate, receivedDisplay: formatPriceInput(estimate) }
+  saleModalOpen.value = true
+}
+
+function onReceivedInput(event) {
+  const normalized = normalizeLocaleInput(event.target.value, { allowDecimals: true, maxDecimals: 2 })
+  saleDraft.value.receivedValue = normalized.value
+  saleDraft.value.receivedDisplay = normalized.display
+  event.target.value = normalized.display
+}
+
+function normalizeReceivedDisplay() {
+  const value = Number(saleDraft.value.receivedValue)
+  saleDraft.value.receivedDisplay = Number.isFinite(value) ? formatPriceInput(value) : formatPriceInput(grandTotal.value)
+}
+
+function confirmSaveSale() {
+  const estimate = Number(grandTotal.value || 0)
+  const received = saleDraft.value.receivedDisplay.trim() === '' ? estimate : Math.max(0, Number(saleDraft.value.receivedValue || 0))
+  addSale({
+    items: buildSaleItems(),
+    estimatedTotal: estimate,
+    receivedTotal: received,
+    buyer: saleDraft.value.buyer,
+    totalKg: totalKg.value
+  })
   lastSavedSignature.value = currentSignature.value
-  saveFeedback.value = { type: 'saved', message: 'Venda salva com sucesso.' }
+  saleModalOpen.value = false
+  saveFeedback.value = { type: 'saved', message: 'Venda registrada.' }
 }
 
 function clearAfterSave() {
@@ -250,7 +325,7 @@ function clearAfterSave() {
 .calc-list-leave-to { opacity:0; transform:translateY(-6px); }
 .toast-enter-active { transition: all .22s ease-out; }
 .toast-leave-active { transition: all .18s ease-in; }
-.toast-enter-from, .toast-leave-to { opacity:0; transform:translateY(8px); }
+.toast-enter-from, .toast-leave-to { opacity:0; transform:translate(-50%,8px); }
 .no-scrollbar::-webkit-scrollbar { display:none; }
 .no-scrollbar { scrollbar-width:none; }
 </style>

@@ -18,14 +18,20 @@
     </div>
 
     <section v-else class="px-5 mt-4 pb-6">
-      <div class="glass-card rounded-2xl px-4 py-3 mb-4 flex items-center justify-between">
-        <div>
-          <p class="text-slate-400 text-xs font-app font-semibold uppercase tracking-wider">Total geral</p>
-          <p class="font-app font-extrabold text-xl text-gradient mt-0.5">{{ formatCurrency(grandTotal) }}</p>
+      <div class="glass-card rounded-2xl px-4 py-3 mb-4">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-slate-400 text-[10px] font-app font-semibold uppercase tracking-wider">Total recebido</p>
+            <p class="font-app font-extrabold text-xl text-gradient mt-0.5">{{ formatCurrency(grandTotal) }}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-slate-400 text-xs font-app">{{ sales.length }} venda{{ sales.length !== 1 ? 's' : '' }}</p>
+            <p class="text-slate-500 text-xs font-app font-semibold mt-0.5">{{ formatDecimal(totalKgAll, 2) }} kg total</p>
+          </div>
         </div>
-        <div class="text-right">
-          <p class="text-slate-400 text-xs font-app">{{ sales.length }} venda{{ sales.length !== 1 ? 's' : '' }}</p>
-          <p class="text-slate-500 text-xs font-app font-semibold mt-0.5">{{ formatDecimal(totalKgAll, 2) }} kg total</p>
+        <div v-if="Math.abs(grandEstimated - grandTotal) > 0.009" class="mt-2 pt-2 flex items-center justify-between" style="border-top:1px solid #eef2f7;">
+          <span class="font-app text-xs text-slate-400">Estimativa das vendas</span>
+          <strong class="font-app text-xs text-slate-600">{{ formatCurrency(grandEstimated) }}</strong>
         </div>
       </div>
 
@@ -33,8 +39,13 @@
         <div v-for="sale in sales" :key="sale.id" class="glass-card rounded-2xl overflow-hidden">
           <div class="px-4 pt-4 pb-3 flex items-start justify-between gap-2">
             <div class="min-w-0 flex-1">
-              <p class="font-app font-bold text-base text-gradient-amber">{{ formatCurrency(sale.total) }}</p>
+              <div class="flex items-baseline gap-2 flex-wrap">
+                <p class="font-app font-bold text-base text-gradient-amber">{{ formatCurrency(receivedValue(sale)) }}</p>
+                <span class="font-app text-[10px] font-bold uppercase tracking-wider text-slate-400">recebido</span>
+              </div>
               <p class="text-slate-400 text-xs font-app mt-0.5">{{ formatDate(sale.date) }} · {{ formatDecimal(sale.totalKg, 2) }} kg · {{ sale.items.length }} ite{{ sale.items.length !== 1 ? 'ns' : 'm' }}</p>
+              <p v-if="sale.buyer" class="text-slate-500 text-xs font-app mt-1 truncate">{{ sale.buyer }}</p>
+              <p v-if="Math.abs(estimatedValue(sale) - receivedValue(sale)) > 0.009" class="text-slate-400 text-[11px] font-app mt-1">Estimativa: {{ formatCurrency(estimatedValue(sale)) }}</p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
               <button @click="toggleSale(sale.id)" class="w-10 h-10 rounded-xl flex items-center justify-center active:scale-90" style="background:#f0fdf4;border:1px solid #d1fae5;" aria-label="Mostrar detalhes">
@@ -79,7 +90,7 @@
       <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-end justify-center px-5 modal-safe-bottom" style="background:rgba(0,0,0,.4);backdrop-filter:blur(4px);" @click.self="deleteTarget = null">
         <div class="w-full bg-white rounded-3xl p-5 max-w-sm">
           <p class="font-app font-bold text-base text-slate-700">Excluir esta venda?</p>
-          <p class="font-app text-sm text-slate-400 mt-1 mb-5">{{ formatCurrency(deleteTarget.total) }} · {{ formatDate(deleteTarget.date) }}. Esta ação não pode ser desfeita.</p>
+          <p class="font-app text-sm text-slate-400 mt-1 mb-5">{{ formatCurrency(receivedValue(deleteTarget)) }} · {{ formatDate(deleteTarget.date) }}. Esta ação não pode ser desfeita.</p>
           <div class="flex gap-3">
             <button @click="deleteTarget = null" class="flex-1 py-3 rounded-2xl font-app font-bold text-sm text-slate-500" style="background:#f1f5f9;border:1px solid #e2e8f0;">Cancelar</button>
             <button @click="confirmDeleteSale" class="flex-1 py-3 rounded-2xl font-app font-bold text-sm text-white" style="background:linear-gradient(135deg,#ef4444,#dc2626);">Excluir</button>
@@ -161,7 +172,15 @@ function formatItemQty(item) {
   return `${formatDecimal(item.qty, item.unitType === 'units' ? 0 : 3)} ${item.unit}`
 }
 
-const grandTotal = computed(() => sales.value.reduce((sum, sale) => sum + Number(sale.total || 0), 0))
+function receivedValue(sale) {
+  return Number.isFinite(Number(sale?.receivedTotal)) ? Number(sale.receivedTotal) : Number(sale?.total || 0)
+}
+function estimatedValue(sale) {
+  return Number.isFinite(Number(sale?.estimatedTotal)) ? Number(sale.estimatedTotal) : Number(sale?.total || 0)
+}
+
+const grandTotal = computed(() => sales.value.reduce((sum, sale) => sum + receivedValue(sale), 0))
+const grandEstimated = computed(() => sales.value.reduce((sum, sale) => sum + estimatedValue(sale), 0))
 const totalKgAll = computed(() => sales.value.reduce((sum, sale) => sum + Number(sale.totalKg || 0), 0))
 </script>
 

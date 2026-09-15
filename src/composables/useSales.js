@@ -1,10 +1,11 @@
 import { ref } from 'vue'
 import { readJsonStorage, writeJsonStorage } from '@/utils/storage'
+import { normalizeSaleRecord, createSaleRecord } from '@/utils/sales'
 
 export const SALES_KEY = 'eureciclo_sales'
 
 function normalizeSales(value) {
-  return Array.isArray(value) ? value.filter(Boolean) : []
+  return Array.isArray(value) ? value.map(normalizeSaleRecord).filter(Boolean) : []
 }
 
 const sales = ref(normalizeSales(readJsonStorage(SALES_KEY, [])))
@@ -19,14 +20,12 @@ function createSaleId() {
 }
 
 export function useSales() {
-  function addSale({ items, total, totalKg }) {
-    const newSale = {
+  function addSale(data) {
+    const newSale = createSaleRecord({
+      ...data,
       id: createSaleId(),
-      date: new Date().toISOString(),
-      items: Array.isArray(items) ? items.map(item => ({ ...item })) : [],
-      total: Number(total) || 0,
-      totalKg: Number(totalKg) || 0
-    }
+      date: new Date().toISOString()
+    })
     sales.value.unshift(newSale)
     persistSales(sales.value)
     return newSale

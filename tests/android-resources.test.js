@@ -11,6 +11,7 @@ const assets = [
   'public/app-icon.png',
   'src/assets/app-icon.png',
   'resources/android/drawable/ic_launcher_foreground.png',
+  'resources/android/drawable/splash_logo.png',
   ...['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'].flatMap(density => [
     `resources/android/mipmap-${density}/ic_launcher.png`,
     `resources/android/mipmap-${density}/ic_launcher_round.png`

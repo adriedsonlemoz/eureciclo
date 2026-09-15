@@ -88,3 +88,26 @@ test('preços digitados com ponto são exibidos no padrão brasileiro', async ()
   assert.equal(normalized.display, '1.250,50')
   assert.equal(formatPriceInput(normalized.value), '1.250,50')
 })
+
+
+
+test('venda separa estimativa, valor recebido e comprador sem quebrar campo legado total', async () => {
+  const { createSaleRecord, normalizeSaleRecord } = await import('../src/utils/sales.js')
+  const sale = createSaleRecord({ id:'1', date:'2026-09-15T00:00:00Z', items:[], estimatedTotal:100, receivedTotal:92.5, buyer:' Ferro Velho Teste ', totalKg:10 })
+  assert.equal(sale.estimatedTotal, 100)
+  assert.equal(sale.receivedTotal, 92.5)
+  assert.equal(sale.total, 92.5)
+  assert.equal(sale.buyer, 'Ferro Velho Teste')
+  const legacy = normalizeSaleRecord({ id:'old', total:55, items:[] })
+  assert.equal(legacy.estimatedTotal, 55)
+  assert.equal(legacy.receivedTotal, 55)
+})
+
+
+test('onboarding alerta preço muito acima da referência sem bloquear preço normal', async () => {
+  const { isSuspiciousSetupPrice } = await import('../src/utils/pricing.js')
+  assert.equal(isSuspiciousSetupPrice(7, 6), false)
+  assert.equal(isSuspiciousSetupPrice(700, 6), true)
+  assert.equal(isSuspiciousSetupPrice(300, 30), true)
+  assert.equal(isSuspiciousSetupPrice(0, 6), false)
+})

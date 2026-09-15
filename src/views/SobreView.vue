@@ -57,15 +57,26 @@
       </section>
 
       <section class="glass-card rounded-2xl p-5">
-        <div class="flex items-center gap-2 mb-3"><svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 9h6M9 13h6M9 17h4"/></svg><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Histórico de mudanças</h2></div>
-        <div class="flex flex-col gap-4">
-          <div v-for="entry in changelog" :key="entry.version">
-            <div class="flex items-center gap-2 mb-2"><span class="pill text-white" style="background:#16a34a;">v{{ entry.version }}</span><span class="font-app text-xs text-slate-400">{{ entry.date }}</span></div>
-            <ul class="flex flex-col gap-1">
-              <li v-for="change in entry.changes" :key="change" class="font-app text-xs text-slate-500 leading-relaxed flex items-start gap-2"><span class="text-eco-500 shrink-0">•</span><span>{{ change }}</span></li>
-            </ul>
+        <button @click="changelogOpen = !changelogOpen" class="w-full flex items-center justify-between gap-3 text-left">
+          <div class="flex items-center gap-2 min-w-0">
+            <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 9h6M9 13h6M9 17h4"/></svg>
+            <div class="min-w-0">
+              <h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Histórico de mudanças</h2>
+              <p class="font-app text-[11px] text-slate-400 mt-0.5">Versão atual v{{ APP_VERSION }} · toque para {{ changelogOpen ? 'recolher' : 'ver detalhes' }}</p>
+            </div>
           </div>
-        </div>
+          <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform" :style="changelogOpen ? 'transform:rotate(180deg)' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <transition name="expand">
+          <div v-if="changelogOpen" class="flex flex-col gap-4 mt-4 pt-4" style="border-top:1px solid #eef2f7;">
+            <div v-for="entry in changelog" :key="entry.version">
+              <div class="flex items-center gap-2 mb-2"><span class="pill text-white" style="background:#16a34a;">v{{ entry.version }}</span><span class="font-app text-xs text-slate-400">{{ entry.date }}</span></div>
+              <ul class="flex flex-col gap-1">
+                <li v-for="change in entry.changes" :key="change" class="font-app text-xs text-slate-500 leading-relaxed flex items-start gap-2"><span class="text-eco-500 shrink-0">•</span><span>{{ change }}</span></li>
+              </ul>
+            </div>
+          </div>
+        </transition>
       </section>
 
       <section class="rounded-2xl p-5" style="background:#f0fdf4;border:1px solid #d1fae5;">
@@ -92,6 +103,7 @@ const backupError = ref(false)
 const userName = ref(getUserName() || '')
 const settingsMessage = ref('')
 const pixCopied = ref(false)
+const changelogOpen = ref(false)
 
 function saveName() {
   writeTextStorage(USER_KEY, userName.value.trim() || 'Usuário')
@@ -149,6 +161,13 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.4.3', date:'Set 2026', changes:[
+    'Launcher e splash nativa corrigidos para usar a identidade oficial do Eu Reciclo',
+    'Onboarding compactado e protegido contra preços digitados muito acima das referências iniciais',
+    'Vendas agora separam estimativa, valor recebido e comprador/local opcional',
+    'Filtros horizontais ganharam controle de continuação e exclusão de material foi movida para a edição',
+    'Personalização visual ficou opcional e o histórico de mudanças passa a ficar recolhido'
+  ]},
   { version:'1.4.2', date:'Set 2026', changes:[
     'Corrigido o pacote-fonte para incluir todos os recursos binários do launcher Android',
     'Validação agora confere ícones normal/redondo em todas as densidades e foreground adaptativo',
@@ -195,3 +214,8 @@ const changelog = [
   ]}
 ]
 </script>
+
+<style scoped>
+.expand-enter-active,.expand-leave-active { transition:all .22s ease; overflow:hidden; }
+.expand-enter-from,.expand-leave-to { opacity:0; transform:translateY(-6px); max-height:0; }
+</style>

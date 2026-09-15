@@ -14,13 +14,15 @@
     </header>
 
     <div class="px-5 pt-3 pb-2 relative category-scroller">
-      <div class="flex gap-1.5 overflow-x-auto no-scrollbar pr-8">
+      <div ref="filterScroller" class="flex gap-1.5 overflow-x-auto no-scrollbar pr-10 scroll-smooth">
         <button v-for="tab in filterTabs" :key="tab.key" @click="filterCat = tab.key" class="cat-tab cat-tab-compact shrink-0" :class="filterCat === tab.key ? 'active' : ''">
           <MaterialIcon :category="tab.key === 'all' ? 'outros' : tab.key" class="w-3.5 h-3.5" />
           <span>{{ tab.label }}</span>
         </button>
       </div>
-      <div class="category-scroll-fade" aria-hidden="true"></div>
+      <button v-if="filterTabs.length > 5" type="button" @click="scrollFilters" class="category-scroll-control" style="right:20px;" aria-label="Ver mais filtros">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
     </div>
 
     <section class="px-5 mt-2 pb-6">
@@ -47,14 +49,9 @@
             <router-link v-else :to="`/materials/${mat.id}/edit`" class="font-app font-bold text-xs text-eco-700">Definir preço</router-link>
           </div>
 
-          <div class="flex flex-col gap-1.5 shrink-0">
-            <router-link :to="`/materials/${mat.id}/edit`" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-90" style="background:#f0fdf4;border:1px solid #d1fae5;" aria-label="Editar material">
-              <svg class="w-4 h-4" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
-            </router-link>
-            <button @click="confirmDelete(mat)" class="w-10 h-10 rounded-xl flex items-center justify-center transition-all active:scale-90" style="background:#fff5f5;border:1px solid #fecaca;" aria-label="Excluir material">
-              <svg class="w-4 h-4" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
-            </button>
-          </div>
+          <router-link :to="`/materials/${mat.id}/edit`" class="w-11 h-11 rounded-xl flex items-center justify-center transition-all active:scale-90 shrink-0" style="background:#f0fdf4;border:1px solid #d1fae5;" aria-label="Editar material">
+            <svg class="w-4 h-4" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z"/></svg>
+          </router-link>
         </div>
       </transition-group>
 
@@ -67,21 +64,7 @@
       </div>
     </section>
 
-    <transition name="modal">
-      <div v-if="deleteTarget" class="fixed inset-0 z-50 flex items-end justify-center px-5 modal-safe-bottom" style="background:rgba(0,0,0,.35);" @click.self="deleteTarget = null">
-        <div class="w-full max-w-sm glass-card-bright rounded-3xl p-6 animate-bounce-in">
-          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 text-red-500" style="background:#fff5f5;border:1px solid #fecaca;">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
-          </div>
-          <h3 class="font-app font-bold text-lg text-slate-700 text-center">Excluir material?</h3>
-          <p class="text-slate-400 text-sm font-app text-center mt-1 mb-5">“{{ deleteTarget?.name }}” será removido permanentemente.</p>
-          <div class="flex gap-3">
-            <button @click="deleteTarget = null" class="flex-1 py-3 rounded-2xl font-app font-bold text-sm text-slate-500 active:scale-95" style="background:#f8fafc;border:1px solid #e2e8f0;">Cancelar</button>
-            <button @click="doDelete" class="flex-1 py-3 rounded-2xl font-app font-bold text-sm text-white active:scale-95" style="background:linear-gradient(135deg,#ef4444,#dc2626);">Excluir</button>
-          </div>
-        </div>
-      </div>
-    </transition>
+
   </div>
 </template>
 
@@ -91,10 +74,10 @@ import MaterialIcon from '@/components/MaterialIcon.vue'
 import { useMaterials } from '@/composables/useMaterials'
 import { formatLocaleNumber } from '@/utils/number'
 
-const { materials, byCategory, categories, categoryColors, formatCurrency, getPricePerUnit, deleteMaterial } = useMaterials()
+const { materials, byCategory, categories, categoryColors, formatCurrency, getPricePerUnit } = useMaterials()
 const search = ref('')
 const filterCat = ref('all')
-const deleteTarget = ref(null)
+const filterScroller = ref(null)
 
 const filterTabs = computed(() => [
   { key:'all', label:'Todos' },
@@ -114,12 +97,7 @@ const filteredMaterials = computed(() => {
   return list
 })
 
-function confirmDelete(mat) { deleteTarget.value = mat }
-function doDelete() {
-  if (!deleteTarget.value) return
-  deleteMaterial(deleteTarget.value.id)
-  deleteTarget.value = null
-}
+function scrollFilters() { filterScroller.value?.scrollBy({ left: 180, behavior: 'smooth' }) }
 </script>
 
 <style scoped>
