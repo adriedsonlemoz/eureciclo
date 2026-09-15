@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "name": "Eu Reciclo",
-  "versionName": "1.4.1",
-  "versionCode": 10401,
+  "versionName": "1.4.2",
+  "versionCode": 10402,
   "applicationId": "com.eureciclo.app",
   "namespace": "com.eureciclo.app",
   "type": "Android",

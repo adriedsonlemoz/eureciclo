@@ -16,13 +16,17 @@ if (!Array.isArray(manager.features) || manager.features.length < 10) errors.pus
 if (!pkg.scripts?.['apply:android-icon']) errors.push('package.json precisa manter o script apply:android-icon')
 if (!String(pkg.scripts?.['android:prepare'] || '').includes('apply:android-icon')) errors.push('android:prepare precisa aplicar o ícone Android')
 
-for (const asset of [
+const requiredAssets = [
   'src/assets/app-icon.png',
   'public/app-icon.png',
-  'resources/android/mipmap-mdpi/ic_launcher.png',
-  'resources/android/mipmap-xxxhdpi/ic_launcher.png',
-  'resources/android/drawable/ic_launcher_foreground.png'
-]) {
+  'resources/android/drawable/ic_launcher_foreground.png',
+  ...['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'].flatMap(density => [
+    `resources/android/mipmap-${density}/ic_launcher.png`,
+    `resources/android/mipmap-${density}/ic_launcher_round.png`
+  ])
+]
+
+for (const asset of requiredAssets) {
   if (!existsSync(new URL(`../${asset}`, import.meta.url))) errors.push(`recurso obrigatório ausente: ${asset}`)
 }
 

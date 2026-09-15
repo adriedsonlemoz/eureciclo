@@ -4,8 +4,8 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 
 ## Versão
 
-- App: **1.4.1**
-- Android `versionCode`: **10401**
+- App: **1.4.2**
+- Android `versionCode`: **10402**
 - Application ID: `com.eureciclo.app`
 
 ## Funcionalidades
@@ -92,7 +92,7 @@ A validação compara `package.json`, `package-lock.json` e `github-manager.json
 
 ## APK direto
 
-O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, publica o arquivo **`Eu-Reciclo-v1.4.1.apk`** diretamente como asset da Release `v1.4.1`.
+O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, publica o arquivo **`Eu-Reciclo-v1.4.2.apk`** diretamente como asset da Release `v1.4.2`.
 
 ## Tamanho do projeto
 

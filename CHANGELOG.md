@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.2 — 2026-09-15
+
+- Corrigido o pacote-fonte: os recursos binários do ícone Android agora são incluídos no ZIP enviado ao GitHub.
+- A validação de recursos Android agora confere todas as densidades do launcher, ícones redondos e foreground adaptativo.
+- Mantida a correção do `ic_launcher_background` sem recursos duplicados.
+- GitHub Manager, `package.json`, `package-lock.json` e Android sincronizados em `1.4.2` / `10402`.
+
 ## 1.4.1 — 2026-09-15
 
 - Corrigido o build Android que falhava em `mergeDebugResources` por definição duplicada de `ic_launcher_background`.

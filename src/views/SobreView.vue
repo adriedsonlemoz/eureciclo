@@ -149,9 +149,14 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.4.2', date:'Set 2026', changes:[
+    'Corrigido o pacote-fonte para incluir todos os recursos binários do launcher Android',
+    'Validação agora confere ícones normal/redondo em todas as densidades e foreground adaptativo',
+    'Build deixa de falhar na checagem inicial por recursos do ícone ausentes'
+  ]},
   { version:'1.4.1', date:'Set 2026', changes:[
     'Corrigido o build Android que falhava por recurso duplicado do fundo do ícone',
-    'Aplicação do ícone agora reutiliza o recurso padrão do Capacitor sem criar duplicidade',
+    'Aplicação do ícone reutiliza o recurso padrão do Capacitor sem criar duplicidade',
     'Ícone oficial, tela cheia e melhorias da 1.4.0 preservados'
   ]},
   { version:'1.4.0', date:'Set 2026', changes:[
