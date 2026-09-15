@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen pt-safe">
+  <div class="min-h-screen pt-safe page-bottom-space">
     <header class="px-5 pt-4 pb-4">
       <div class="flex items-center gap-3">
-        <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl glow-green" style="background:linear-gradient(135deg,#16a34a,#15803d);">🌿</div>
+        <div class="w-14 h-14 rounded-2xl overflow-hidden glow-green"><img :src="appIcon" alt="" class="w-full h-full object-cover" /></div>
         <div>
           <h1 class="font-app font-extrabold text-xl text-gradient">Eu Reciclo</h1>
           <p class="font-app text-xs text-slate-400 mt-0.5">v{{ APP_VERSION }} · Ajustes e informações</p>
@@ -12,7 +12,7 @@
 
     <div class="px-5 flex flex-col gap-4 pb-8">
       <section class="glass-card rounded-2xl p-5">
-        <div class="flex items-center gap-2 mb-3"><span class="text-lg">⚙️</span><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Preferências</h2></div>
+        <div class="flex items-center gap-2 mb-3"><svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4v-.2a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H3v-4h.2a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.4 7 7.2 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Preferências</h2></div>
         <label class="font-app text-xs font-semibold text-slate-500">Seu nome</label>
         <div class="flex gap-2 mt-1.5">
           <input v-model="userName" type="text" maxlength="30" class="input-eco flex-1 min-w-0 px-3 py-2.5 text-sm" placeholder="Seu nome" />
@@ -26,7 +26,7 @@
       </section>
 
       <section class="glass-card rounded-2xl p-5">
-        <div class="flex items-center gap-2 mb-2"><span class="text-lg">💚</span><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Apoie o projeto</h2></div>
+        <div class="flex items-center gap-2 mb-2"><svg class="w-4 h-4 text-eco-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/></svg><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Apoie o projeto</h2></div>
         <p class="font-app text-xs text-slate-400 leading-relaxed">Se o Eu Reciclo for útil para você, é possível apoiar o desenvolvimento por PIX.</p>
         <div class="mt-3 rounded-xl p-3 flex items-center gap-3" style="background:#f0fdf4;border:1px solid #bbf7d0;">
           <div class="flex-1 min-w-0">
@@ -38,15 +38,15 @@
       </section>
 
       <section class="glass-card rounded-2xl p-5">
-        <div class="flex items-center gap-2 mb-3"><span class="text-lg">📱</span><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Sobre o app</h2></div>
+        <div class="flex items-center gap-2 mb-3"><svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Sobre o app</h2></div>
         <p class="font-app text-sm text-slate-500 leading-relaxed">O <strong class="text-eco-700">Eu Reciclo</strong> calcula valores de recicláveis, mantém preços por material, metas de compra e histórico no próprio aparelho.</p>
         <div class="mt-4 grid grid-cols-2 gap-2">
-          <div v-for="feat in features" :key="feat.label" class="rounded-xl px-3 py-2.5 flex items-center gap-2" style="background:#f8fafc;border:1px solid #e5e7eb;"><span>{{ feat.icon }}</span><span class="font-app text-xs text-slate-600 font-semibold">{{ feat.label }}</span></div>
+          <div v-for="feat in features" :key="feat.label" class="rounded-xl px-3 py-2.5 flex items-center gap-2" style="background:#f8fafc;border:1px solid #e5e7eb;"><svg class="w-4 h-4 text-eco-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path :d="feat.path"/></svg><span class="font-app text-xs text-slate-600 font-semibold">{{ feat.label }}</span></div>
         </div>
       </section>
 
       <section class="glass-card rounded-2xl p-5">
-        <div class="flex items-center gap-2 mb-2"><span class="text-lg">💾</span><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Backup dos dados</h2></div>
+        <div class="flex items-center gap-2 mb-2"><svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 15h8v6H8z"/></svg><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Backup dos dados</h2></div>
         <p class="font-app text-xs text-slate-400 leading-relaxed mb-4">Exporte materiais, preços, quantidades, nome, vendas e metas de compra. Ao importar, os dados atuais são substituídos.</p>
         <div class="grid grid-cols-2 gap-2">
           <button @click="doExport" class="py-3 rounded-xl font-app font-bold text-sm text-white active:scale-95" style="background:linear-gradient(135deg,#22c55e,#15803d);">Exportar</button>
@@ -57,7 +57,7 @@
       </section>
 
       <section class="glass-card rounded-2xl p-5">
-        <div class="flex items-center gap-2 mb-3"><span class="text-lg">📋</span><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Histórico de mudanças</h2></div>
+        <div class="flex items-center gap-2 mb-3"><svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 9h6M9 13h6M9 17h4"/></svg><h2 class="font-app font-bold text-sm text-slate-600 uppercase tracking-wide">Histórico de mudanças</h2></div>
         <div class="flex flex-col gap-4">
           <div v-for="entry in changelog" :key="entry.version">
             <div class="flex items-center gap-2 mb-2"><span class="pill text-white" style="background:#16a34a;">v{{ entry.version }}</span><span class="font-app text-xs text-slate-400">{{ entry.date }}</span></div>
@@ -69,10 +69,10 @@
       </section>
 
       <section class="rounded-2xl p-5" style="background:#f0fdf4;border:1px solid #d1fae5;">
-        <div class="flex items-start gap-3"><span class="text-xl">🔒</span><div><h2 class="font-app font-bold text-sm text-eco-800">Dados locais</h2><p class="font-app text-xs text-slate-500 leading-relaxed mt-1">O aplicativo não envia seu histórico para um servidor. Faça backups periódicos para não perder dados ao limpar ou reinstalar o app.</p></div></div>
+        <div class="flex items-start gap-3"><svg class="w-5 h-5 text-eco-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><div><h2 class="font-app font-bold text-sm text-eco-800">Dados locais</h2><p class="font-app text-xs text-slate-500 leading-relaxed mt-1">O aplicativo não envia seu histórico para um servidor. Faça backups periódicos para não perder dados ao limpar ou reinstalar o app.</p></div></div>
       </section>
 
-      <p class="font-app text-xs text-slate-300 text-center pb-2">Feito com 💚 para a comunidade recicladora</p>
+      <p class="font-app text-xs text-slate-300 text-center pb-2">Feito para a comunidade recicladora</p>
     </div>
   </div>
 </template>
@@ -80,6 +80,7 @@
 <script setup>
 import { ref } from 'vue'
 import { APP_VERSION } from '@/config/app'
+import appIcon from '@/assets/app-icon.png'
 import { exportBackup, importBackupFile } from '@/composables/useBackup'
 import { getUserName, USER_KEY } from '@/composables/useMaterials'
 import { writeTextStorage } from '@/utils/storage'
@@ -141,13 +142,22 @@ async function doImport(event) {
 }
 
 const features = [
-  { icon:'📴', label:'Offline' },
-  { icon:'🎯', label:'Metas de compra' },
-  { icon:'🧾', label:'Histórico de vendas' },
-  { icon:'🔒', label:'Dados privados' }
+  { label:'Offline', path:'M7 18a4.6 4.6 0 0 1-.6-9.2A7 7 0 0 1 19.5 11 4 4 0 0 1 19 19H8' },
+  { label:'Metas de compra', path:'M12 4a8 8 0 1 0 8 8M12 8a4 4 0 1 0 4 4M14.5 9.5l5-5M16 4h4v4' },
+  { label:'Histórico de vendas', path:'M6 3h12v18l-3-2-3 2-3-2-3 2V3ZM9 8h6M9 12h6' },
+  { label:'Dados privados', path:'M5 10h14v11H5V10ZM8 10V7a4 4 0 0 1 8 0v3' }
 ]
 
 const changelog = [
+  { version:'1.4.0', date:'Set 2026', changes:[
+    'Calculadora compactada para exibir mais materiais por tela',
+    'Safe area e espaçamento inferior corrigidos para evitar conteúdo sob a navegação',
+    'Ícone oficial integrado ao app e ao Android',
+    'Ícones vetoriais consistentes substituem emojis nas telas principais',
+    'Categorias vazias são ocultadas e a Home mostra somente quatro atalhos antes de Ver todas',
+    'Campos numéricos reforçados para vírgula ou ponto com teclado decimal do sistema',
+    'Vendas e Meta de compra revisadas e mantidas compatíveis com o novo visual'
+  ]},
   { version:'1.3.0', date:'Set 2026', changes:[
     'Entradas numéricas aceitam vírgula ou ponto e exibem números no padrão pt-BR',
     'Preços passaram a ser independentes por material e as categorias foram reorganizadas',

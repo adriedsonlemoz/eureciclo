@@ -4,13 +4,13 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 
 ## Versão
 
-- App: **1.3.0**
-- Android `versionCode`: **10300**
+- App: **1.4.0**
+- Android `versionCode`: **10400**
 - Application ID: `com.eureciclo.app`
 
 ## Funcionalidades
 
-- Calculadora por categoria e material
+- Calculadora compacta por categoria e material
 - Entradas numéricas em pt-BR com suporte a vírgula ou ponto decimal
 - Conversão de unidades para kg
 - Cadastro, edição e exclusão de materiais
@@ -25,6 +25,9 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 - Doação via PIX com botão de copiar (`adriedson@outlook.com`)
 - Funcionamento offline
 - Modo Android em tela cheia imersivo
+- Ícone oficial aplicado ao APK, favicon e identidade interna
+- Ícones vetoriais consistentes nas telas principais
+- Safe area reforçada para o conteúdo não ficar sob a navegação inferior
 - APK publicado diretamente na GitHub Release
 
 ## Preços iniciais
@@ -75,7 +78,7 @@ cd android
 ./gradlew assembleDebug
 ```
 
-`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode` e ativa o modo tela cheia imersivo.
+`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode`, ativa o modo tela cheia imersivo e instala os recursos do ícone oficial no Android.
 
 ## GitHub Manager
 
@@ -89,7 +92,7 @@ A validação compara `package.json`, `package-lock.json` e `github-manager.json
 
 ## APK direto
 
-O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, publica o arquivo **`Eu-Reciclo-v1.3.0.apk`** diretamente como asset da Release `v1.3.0`.
+O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, publica o arquivo **`Eu-Reciclo-v1.4.0.apk`** diretamente como asset da Release `v1.4.0`.
 
 ## Tamanho do projeto
 

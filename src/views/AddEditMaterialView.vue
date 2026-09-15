@@ -1,8 +1,7 @@
 <template>
-  <div class="min-h-screen pt-safe">
+  <div class="min-h-screen pt-safe page-bottom-space">
     <!-- Header -->
-    <header class="px-5 pt-4 pb-4 flex items-center gap-3 sticky top-0 z-30"
-            style="background: rgba(245,254,248,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid #e2f5e8;">
+    <header class="px-5 pt-4 pb-4 flex items-center gap-3 sticky top-0 z-30 app-sticky-header">
       <button @click="goBack"
               class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all active:scale-90"
               style="background: #f0fdf4; border: 1px solid #d1fae5;">
@@ -14,9 +13,9 @@
         {{ isEdit ? 'Editar Material' : 'Novo Material' }}
       </h1>
       <!-- Icon preview -->
-      <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xl shadow-sm"
-           :style="{ background: `${form.accentColor}20`, border: `1.5px solid ${form.accentColor}40` }">
-        {{ form.icon || '♻️' }}
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm"
+           :style="{ background: `${form.accentColor}20`, border: `1.5px solid ${form.accentColor}40`, color: form.accentColor }">
+        <MaterialIcon :name="form.name" :category="form.category" :legacy-icon="form.icon" class="w-5 h-5" />
       </div>
     </header>
 
@@ -42,7 +41,7 @@
         <div class="glass-card rounded-2xl overflow-hidden">
           <!-- Icon picker -->
           <div class="px-4 py-3 border-b border-eco-50">
-            <p class="text-slate-400 text-xs font-app mb-2">Ícone (emoji)</p>
+            <p class="text-slate-400 text-xs font-app mb-2">Ícone</p>
             <div class="flex gap-2 flex-wrap">
               <button
                 v-for="em in iconOptions"
@@ -53,7 +52,7 @@
                 :style="form.icon === em
                   ? `background:${form.accentColor}25; border: 2px solid ${form.accentColor}70`
                   : 'background: #f0fdf4; border: 1.5px solid #e2f5e8'"
-              >{{ em }}</button>
+              ><MaterialIcon :legacy-icon="em" class="w-5 h-5" /></button>
             </div>
           </div>
 
@@ -95,7 +94,7 @@
                   ? `background: ${categoryColors[cat.key].bg}; border: 1.5px solid ${categoryColors[cat.key].border}; color: ${categoryColors[cat.key].text}`
                   : 'background: #f8fafc; border: 1.5px solid #e2e8f0; color: #94a3b8'"
               >
-                <span>{{ cat.icon }}</span>
+                <MaterialIcon :category="cat.key" class="w-4 h-4" />
                 <span>{{ cat.label }}</span>
               </button>
             </div>
@@ -135,7 +134,7 @@
               <input
                 :value="displayPrice"
                 type="text"
-                inputmode="decimal"
+                inputmode="decimal" pattern="[0-9.,]*" enterkeyhint="done" autocomplete="off"
                 placeholder="3,00"
                 maxlength="10"
                 class="input-eco w-full pl-10 pr-4 py-3 text-sm"
@@ -168,7 +167,7 @@
           <transition name="field-toggle">
             <div v-if="form.unitType === 'units'" class="px-4 py-3 border-b border-eco-50">
               <p class="text-slate-400 text-xs font-app mb-1.5">Unidades por kg *</p>
-              <input :value="form.unitsPerKg ? Number(form.unitsPerKg).toLocaleString('pt-BR') : ''" type="text" inputmode="numeric"
+              <input :value="form.unitsPerKg ? Number(form.unitsPerKg).toLocaleString('pt-BR') : ''" type="text" inputmode="numeric" pattern="[0-9]*" enterkeyhint="done" autocomplete="off"
                      placeholder="Ex.: 70 para latas, 25 para PET"
                      :required="form.unitType === 'units'"
                      class="input-eco w-full px-4 py-3 text-sm"
@@ -237,6 +236,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useMaterials } from '@/composables/useMaterials'
+import MaterialIcon from '@/components/MaterialIcon.vue'
 import { formatPriceInput, normalizeLocaleInput } from '@/utils/number'
 
 const route = useRoute()
@@ -279,8 +279,8 @@ function onUnitsPerKgInput(event) {
 const iconOptions = ['♻️','🥫','🧴','⚡','🔧','📦','🫙','🔩','🌿','💎','🪨','🔋','📱','🖥️','🚗']
 const colorOptions = ['#22c55e','#60a5fa','#f59e0b','#f87171','#a78bfa','#5eead4','#fb7185','#d97706','#9ca3af','#c084fc','#34d399','#fcd34d']
 const unitTypes = [
-  { value: 'weight', label: '⚖️ Por Peso (kg)' },
-  { value: 'units',  label: '🔢 Por Unidade (un)' }
+  { value: 'weight', label: 'Por peso (kg)' },
+  { value: 'units',  label: 'Por unidade (un)' }
 ]
 
 onMounted(() => {

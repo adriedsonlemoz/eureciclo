@@ -70,3 +70,21 @@ test('quantidade por unidade não aceita decimal e recebe separador de milhar', 
   assert.equal(result.value, 1250)
   assert.equal(result.display, '1.250')
 })
+
+test('campos decimais aceitam 2,5 e 2.5 com o mesmo resultado', async () => {
+  const { normalizeLocaleInput } = await import('../src/utils/number.js')
+  const comma = normalizeLocaleInput('2,5', { allowDecimals: true, maxDecimals: 3 })
+  const dot = normalizeLocaleInput('2.5', { allowDecimals: true, maxDecimals: 3 })
+  assert.equal(comma.value, 2.5)
+  assert.equal(dot.value, 2.5)
+  assert.equal(comma.display, '2,5')
+  assert.equal(dot.display, '2,5')
+})
+
+test('preços digitados com ponto são exibidos no padrão brasileiro', async () => {
+  const { normalizeLocaleInput, formatPriceInput } = await import('../src/utils/number.js')
+  const normalized = normalizeLocaleInput('1250.50', { allowDecimals: true, maxDecimals: 2 })
+  assert.equal(normalized.value, 1250.5)
+  assert.equal(normalized.display, '1.250,50')
+  assert.equal(formatPriceInput(normalized.value), '1.250,50')
+})

@@ -1,6 +1,6 @@
 {
   "name": "eu-reciclo",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "type": "module",
   "private": true,
   "scripts": {
@@ -14,7 +14,8 @@
     "sync:android-version": "node scripts/sync-android-version.mjs",
     "check:version": "node scripts/check-project-version.mjs",
     "apply:android-fullscreen": "node scripts/apply-android-fullscreen.mjs",
-    "android:prepare": "npx cap sync android && npm run sync:android-version && npm run apply:android-fullscreen"
+    "android:prepare": "npx cap sync android && npm run sync:android-version && npm run apply:android-fullscreen && npm run apply:android-icon",
+    "apply:android-icon": "node scripts/apply-android-icon.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^6.0.0",

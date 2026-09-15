@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.4.0 — 2026-09-15
+
+- Calculadora compactada para exibir mais materiais por tela sem perder preço, conversão e resultado.
+- Barra de total foi reduzida e reposicionada acima da navegação inferior.
+- Safe area e espaçamento inferior foram reforçados para evitar conteúdo coberto pela barra de navegação.
+- Categorias vazias deixam de aparecer na Home; os atalhos mostram no máximo quatro categorias antes de “Ver todas”.
+- Chips de categoria ficaram menores e ganharam indicação visual de rolagem horizontal.
+- Campos de preço e peso reforçados com `inputmode`, `pattern` e normalização de vírgula/ponto.
+- Adicionados testes explícitos para `2,5`, `2.5` e `1250.50`.
+- Ícones vetoriais consistentes passaram a substituir emojis nas telas principais.
+- Áreas de toque de editar/excluir materiais foram ampliadas.
+- Vendas e Meta de compra foram revisadas para usar a mesma linguagem visual.
+- Ícone oficial do Eu Reciclo foi integrado à Home, Ajustes, favicon e recursos Android.
+- `android:prepare` agora aplica automaticamente o ícone do launcher depois que o Capacitor gera a plataforma.
+- GitHub Manager, `package.json`, `package-lock.json` e Android sincronizados em `1.4.0` / `10400`.
+
 ## 1.3.0 — 2026-09-15
 
 - Entradas numéricas agora aceitam vírgula ou ponto decimal e exibem valores no padrão pt-BR.

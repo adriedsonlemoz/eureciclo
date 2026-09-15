@@ -1,7 +1,6 @@
 <template>
-  <div class="min-h-screen pt-safe">
-    <header class="px-5 pt-4 pb-4 sticky top-0 z-30"
-            style="background: rgba(245,254,248,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid #e2f5e8;">
+  <div class="min-h-screen pt-safe page-bottom-space">
+    <header class="px-5 pt-4 pb-4 sticky top-0 z-30 app-sticky-header">
       <div class="flex items-center gap-3">
         <button @click="router.back()"
                 class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-500 active:scale-95"
@@ -51,7 +50,7 @@
                    @blur="normalizeDraftPrice"
                    @keyup.enter="addItem"
                    class="input-eco w-full pl-9 pr-3 py-3 text-right"
-                   inputmode="decimal"
+                   inputmode="decimal" pattern="[0-9.,]*" enterkeyhint="done" autocomplete="off"
                    placeholder="0,00" />
           </div>
         </div>
@@ -67,7 +66,7 @@
           <div v-for="(item, index) in items" :key="item.id"
                class="rounded-2xl px-3 py-3 flex items-center gap-3"
                style="background:#f8fafc;border:1px solid #eef2f7;">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0" style="background:#f0fdf4;">🛒</div>
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-eco-600" style="background:#f0fdf4;"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2 11h10l2-7H7"/><circle cx="9" cy="19" r="1"/><circle cx="17" cy="19" r="1"/></svg></div>
             <div class="flex-1 min-w-0">
               <p class="font-app font-semibold text-sm text-slate-700 truncate">{{ item.name }}</p>
               <p class="font-app text-xs text-slate-400">Produto {{ index + 1 }}</p>
@@ -92,14 +91,14 @@
 
         <select v-model="selectedMaterialId" class="input-eco w-full px-3 py-3">
           <option v-for="material in materials" :key="material.id" :value="String(material.id)">
-            {{ material.icon }} {{ material.name }} — {{ material.pricePerKg > 0 ? `${formatCurrency(material.pricePerKg)}/kg` : 'preço a definir' }}
+            {{ material.name }} — {{ material.pricePerKg > 0 ? `${formatCurrency(material.pricePerKg)}/kg` : 'preço a definir' }}
           </option>
         </select>
 
         <div v-if="selectedMaterial && selectedMaterial.pricePerKg > 0 && totalTarget > 0" class="mt-4 rounded-3xl p-5" style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;">
           <div class="flex items-start gap-3">
-            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0" style="background:#fff;border:1px solid #dcfce7;">
-              {{ selectedMaterial.icon }}
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" :style="{ background:'#fff', border:'1px solid #dcfce7', color:selectedMaterial.accentColor }">
+              <MaterialIcon :name="selectedMaterial.name" :category="selectedMaterial.category" :legacy-icon="selectedMaterial.icon" class="w-6 h-6" />
             </div>
             <div class="min-w-0 flex-1">
               <p class="font-app text-xs font-bold uppercase tracking-wide text-eco-700">Você precisa juntar</p>
@@ -121,7 +120,7 @@
             <div class="h-2 rounded-full mt-3 overflow-hidden" style="background:#dcfce7;">
               <div class="h-full rounded-full transition-all duration-300" style="background:#16a34a;" :style="{ width: `${progressPercent}%` }"></div>
             </div>
-            <p class="font-app text-[11px] text-slate-400 mt-1.5 text-right">{{ progressPercent.toFixed(0) }}% da meta</p>
+            <p class="font-app text-[11px] text-slate-400 mt-1.5 text-right">{{ formatPercent(progressPercent) }}% da meta</p>
           </div>
 
           <button @click="saveCurrentGoal"
@@ -151,18 +150,18 @@
                @keyup.enter="loadGoal(goal)"
                class="w-full rounded-2xl p-3 flex items-center gap-3 text-left active:scale-[0.99] cursor-pointer"
                style="background:#f8fafc;border:1px solid #eef2f7;">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0" style="background:#f0fdf4;">🎯</div>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-eco-600" style="background:#f0fdf4;"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="m14.5 9.5 5-5M16 4h4v4"/></svg></div>
             <div class="flex-1 min-w-0">
               <p class="font-app font-semibold text-sm text-slate-700 truncate">{{ goal.name }}</p>
               <p class="font-app text-xs text-slate-400">{{ goal.items.length }} item{{ goal.items.length === 1 ? '' : 's' }} · {{ formatCurrency(goal.items.reduce((sum, item) => sum + Number(item.price || 0), 0)) }}</p>
             </div>
-            <button @click.stop="deleteGoal(goal.id)" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400" aria-label="Excluir meta">×</button>
+            <button @click.stop="deleteGoal(goal.id)" class="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 active:scale-90" style="background:#fff;border:1px solid #e2e8f0;" aria-label="Excluir meta"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
           </div>
         </div>
       </section>
 
       <div class="rounded-2xl px-4 py-3 flex gap-3 items-start" style="background:#fff7ed;border:1px solid #fed7aa;">
-        <span class="text-lg">ℹ️</span>
+        <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
         <p class="font-app text-xs text-slate-500 leading-relaxed">
           O cálculo usa o <strong>preço por kg cadastrado no app</strong>. Como o valor pago por recicláveis pode variar, atualize seus preços em Materiais para manter a estimativa próxima da realidade.
         </p>
@@ -174,10 +173,11 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import MaterialIcon from '@/components/MaterialIcon.vue'
 import { useMaterials } from '@/composables/useMaterials'
 import { useCalculator } from '@/composables/useCalculator'
 import { usePurchaseGoals } from '@/composables/usePurchaseGoals'
-import { normalizeLocaleInput, formatPriceInput } from '@/utils/number'
+import { normalizeLocaleInput, formatPriceInput, formatLocaleNumber } from '@/utils/number'
 import { calculateMaterialValue, calculateRequiredQuantity, quantityToKg } from '@/utils/recycling'
 
 const router = useRouter()
@@ -227,7 +227,11 @@ function formatPrimary(quantity) {
 }
 
 function formatKg(value) {
-  return `${Number(value || 0).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 3 })} kg`
+  return `${formatLocaleNumber(value, { minimumFractionDigits: 0, maximumFractionDigits: 3 })} kg`
+}
+
+function formatPercent(value) {
+  return formatLocaleNumber(value, { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 }
 
 function onPriceInput(event) {
