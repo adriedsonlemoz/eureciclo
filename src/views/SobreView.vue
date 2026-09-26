@@ -174,6 +174,11 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.4.10', date:'Set 2026', changes:[
+    'Corrigida a leitura do SHA-256 do certificado nas versões atuais do apksigner',
+    'Validação aceita V2 Signer e o formato legado Signer #1 sem reduzir a segurança',
+    'Ícone oficial e assinatura Release permanente continuam verificados antes da publicação'
+  ]},
   { version:'1.4.9', date:'Set 2026', changes:[
     'Corrigido falso erro do verificador causado pelo encurtamento de caminhos de recursos em APK Release',
     'Manifest binário e resources.arsc passam a ser a fonte principal para confirmar o launcher final',

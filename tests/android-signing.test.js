@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { extractApkCertificateSha256 } from '../scripts/extract-apksigner-cert.mjs'
 
 const workflow = readFileSync(new URL('../.github/workflows/build-apk.yml', import.meta.url), 'utf8')
 const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
@@ -29,9 +30,33 @@ test('workflow exige os quatro secrets de assinatura permanente', () => {
 test('assinatura é validada contra o certificado do keystore', () => {
   assert.match(workflow, /\"\$APKSIGNER\" verify --verbose --print-certs/)
   assert.match(workflow, /keytool -exportcert/)
+  assert.match(workflow, /extract-apksigner-cert\.mjs/)
   assert.match(workflow, /APK_CERT_SHA256/)
   assert.match(workflow, /KEYSTORE_CERT_SHA256/)
   assert.match(workflow, /Android Debug/)
+})
+
+
+test('extrator aceita saída atual do apksigner com V2 Signer', () => {
+  const digest = 'ac4d833375b94bcebce4386077085825e561c03f7f1cd6864ed99d8fb2759906'
+  const report = `Verifies
+Number of signers: 1
+V2 Signer: certificate DN: CN=Eu Reciclo
+V2 Signer: certificate SHA-256 digest: ${digest}
+V2 Signer: public key SHA-256 digest: a94e8d0c7751d5f3a5a6026d494399cbce8395f34302acf8ae0be015de0590c0
+`
+  assert.equal(extractApkCertificateSha256(report), digest)
+})
+
+test('extrator continua aceitando formato legado Signer #1', () => {
+  const digest = 'AC4D833375B94BCEBCE4386077085825E561C03F7F1CD6864ED99D8FB2759906'
+  const report = `Signer #1 certificate SHA-256 digest: ${digest}
+`
+  assert.equal(extractApkCertificateSha256(report), digest.toLowerCase())
+})
+
+test('extrator rejeita relatório sem digest de certificado', () => {
+  assert.throws(() => extractApkCertificateSha256(`Verifies\nNumber of signers: 1\n`), /Nenhum SHA-256/)
 })
 
 test('script Gradle não possui fallback para assinatura debug', () => {

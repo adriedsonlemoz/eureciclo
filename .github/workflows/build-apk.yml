@@ -163,13 +163,18 @@ jobs:
             exit 1
           fi
 
-          APK_CERT_SHA256=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$REPORT" | head -n 1 | tr '[:upper:]' '[:lower:]')
+          APK_CERT_SHA256=$(node scripts/extract-apksigner-cert.mjs "$REPORT")
           KEYSTORE_CERT_SHA256=$(keytool -exportcert \
             -keystore "$ANDROID_KEYSTORE_PATH" \
             -storepass "$ANDROID_KEYSTORE_PASSWORD" \
             -alias "$ANDROID_KEY_ALIAS" 2>/dev/null | sha256sum | awk '{print $1}')
 
-          if [ -z "$APK_CERT_SHA256" ] || [ "$APK_CERT_SHA256" != "$KEYSTORE_CERT_SHA256" ]; then
+          if ! [[ "$APK_CERT_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo '::error::Não foi possível extrair um SHA-256 válido do certificado do APK.'
+            exit 1
+          fi
+
+          if [ "$APK_CERT_SHA256" != "$KEYSTORE_CERT_SHA256" ]; then
             echo '::error::O certificado do APK não corresponde ao keystore permanente configurado.'
             exit 1
           fi

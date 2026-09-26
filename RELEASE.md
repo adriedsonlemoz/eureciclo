@@ -1,17 +1,18 @@
-# Release — Eu Reciclo v1.4.9
+# Release — Eu Reciclo v1.4.10
 
-Version name: 1.4.9  
-Android versionCode: 10409  
+Version name: 1.4.10  
+Android versionCode: 10410  
 Application ID: `com.eureciclo.app`
 
 ## Destaques
 
-- Corrigido o falso erro `legacyEntry` da validação pós-build.
-- O APK Release pode encurtar nomes físicos dos arquivos de recursos durante `optimizeReleaseResources`; isso é normal e não significa que o launcher desapareceu.
-- O launcher final é validado pelo `AndroidManifest.xml` binário e pela `resources.arsc`, exigindo `@mipmap/ic_launcher`, `@mipmap/ic_launcher_round`, `@drawable/ic_launcher_foreground` e `@color/ic_launcher_background`.
-- Quando os caminhos físicos dos PNGs estão disponíveis na tabela de recursos, a validação compara seus pixels com os ícones oficiais.
-- Assinatura Release permanente continua obrigatória e validada com `apksigner`.
+- Corrigida a validação final do certificado do APK Release.
+- O `Build-Android-APK-14` comprovou que o APK foi compilado, que o launcher oficial passou na validação e que a assinatura é válida com o certificado `CN=Eu Reciclo`.
+- A falha era somente de leitura do relatório: o workflow esperava `Signer #1 certificate SHA-256 digest`, mas o `apksigner` atual informou `V2 Signer: certificate SHA-256 digest`.
+- O novo extrator reconhece os dois formatos e normaliza o digest SHA-256 antes de compará-lo ao certificado exportado do keystore permanente.
+- A publicação continua bloqueada se o certificado real do APK for diferente do keystore configurado.
+- A validação do launcher oficial no APK continua obrigatória antes da publicação.
 
 ## APK
 
-O workflow gera `Eu-Reciclo-v1.4.9.apk` a partir de `app-release.apk`. A publicação só ocorre depois de validar a assinatura e a identidade do launcher dentro do APK sem depender de nomes físicos que podem ser alterados pelo otimizador Android.
+O workflow gera `Eu-Reciclo-v1.4.10.apk` a partir de `app-release.apk`. Antes de publicar, valida o launcher, verifica criptograficamente a assinatura com `apksigner` e compara o SHA-256 do certificado do APK com o certificado do keystore permanente.

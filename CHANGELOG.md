@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.10 — 2026-09-26
+
+- Corrigido o falso erro `O certificado do APK não corresponde ao keystore permanente configurado` observado no `Build-Android-APK-14`.
+- Os logs confirmaram que o APK Release foi compilado, o launcher oficial foi validado dentro do APK e a assinatura era válida com certificado `CN=Eu Reciclo`.
+- A causa era o parser da etapa de segurança: ele procurava somente a linha antiga `Signer #1 certificate SHA-256 digest`, enquanto a versão atual do `apksigner` retornou `V2 Signer: certificate SHA-256 digest`.
+- Adicionado extrator dedicado para o SHA-256 do certificado, compatível com os formatos atuais e legados do `apksigner` e com rejeição de relatórios sem certificado ou com certificados diferentes.
+- Adicionados testes de regressão para as saídas `V2 Signer` e `Signer #1`.
+- Mantidas intactas as validações do ícone oficial, assinatura Release permanente e comparação com o certificado do keystore.
+- Versão sincronizada em `1.4.10` / `10410`.
+
 ## 1.4.9 — 2026-09-26
 
 - Corrigido o falso erro `recurso legacyEntry não foi empacotado no APK` observado no `Build-Android-APK-13`.

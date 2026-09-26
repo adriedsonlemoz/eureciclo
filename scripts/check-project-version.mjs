@@ -8,8 +8,10 @@ const expectedCode = major * 10000 + minor * 100 + patch
 
 const workflowPath = new URL('../.github/workflows/build-apk.yml', import.meta.url)
 const signingScriptPath = new URL('../scripts/configure-android-signing.mjs', import.meta.url)
+const certParserPath = new URL('../scripts/extract-apksigner-cert.mjs', import.meta.url)
 const workflow = existsSync(workflowPath) ? readFileSync(workflowPath, 'utf8') : ''
 const signingScript = existsSync(signingScriptPath) ? readFileSync(signingScriptPath, 'utf8') : ''
+const certParser = existsSync(certParserPath) ? readFileSync(certParserPath, 'utf8') : ''
 
 const errors = []
 if (lock.version !== pkg.version) errors.push(`package-lock.json version=${lock.version} difere de package.json=${pkg.version}`)
@@ -30,6 +32,7 @@ for (const secret of ['ANDROID_KEYSTORE_BASE64', 'ANDROID_KEYSTORE_PASSWORD', 'A
   if (!workflow.includes(`secrets.${secret}`)) errors.push(`workflow precisa usar o secret ${secret}`)
 }
 if (!workflow.includes('apksigner') || !workflow.includes('KEYSTORE_CERT_SHA256')) errors.push('workflow precisa validar o certificado do APK Release')
+if (!workflow.includes('extract-apksigner-cert.mjs') || !certParser.includes('certificate SHA-256 digest')) errors.push('workflow precisa extrair o certificado do apksigner de forma compatível')
 if (!workflow.includes('Verify launcher icon inside APK') || !workflow.includes('verify:apk-icon')) errors.push('workflow precisa validar o ícone dentro do APK final')
 if (!signingScript.includes('signingConfig signingConfigs.release') || signingScript.includes('signingConfigs.debug')) errors.push('configuração Release precisa usar somente signingConfigs.release')
 

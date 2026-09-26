@@ -19,8 +19,8 @@
           <div class="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(34,197,94,.14);color:#15803d;">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 4 4L19 6"/><path d="M12 22a10 10 0 1 0-10-10"/></svg>
           </div>
-          <h2 class="text-slate-800 text-xl font-black">Ícone oficial garantido no APK</h2>
-          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.9 corrige o falso erro causado pela otimização de recursos do Android e mantém a validação do ícone oficial no APK final.</p>
+          <h2 class="text-slate-800 text-xl font-black">Assinatura Release validada corretamente</h2>
+          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.10 corrige a leitura do certificado no apksigner sem enfraquecer a validação da assinatura nem do ícone oficial.</p>
         </section>
 
         <div class="grid gap-3">
@@ -62,22 +62,22 @@ const isManual = computed(() => route.query.manual === '1')
 const changes = [
   {
     icon: 'app',
-    title: 'Validação Release corrigida',
-    text: 'O verificador não exige mais que o APK preserve nomes físicos como ic_launcher.png, pois o Android pode encurtá-los durante a otimização Release.',
+    title: 'Certificado reconhecido corretamente',
+    text: 'A validação agora entende tanto a saída atual V2 Signer quanto o formato legado Signer #1 do apksigner.',
     bg: '#ecfdf5',
     color: '#15803d'
   },
   {
     icon: 'list',
-    title: 'Launcher confirmado no APK',
-    text: 'A checagem lê o Manifest binário e a resources.arsc para confirmar ic_launcher, ic_launcher_round, foreground adaptativo e cor de fundo.',
+    title: 'Segurança preservada',
+    text: 'O SHA-256 extraído do APK continua sendo comparado ao certificado real do keystore permanente antes da publicação.',
     bg: '#eff6ff',
     color: '#2563eb'
   },
   {
     icon: 'layout',
-    title: 'Pixels conferidos quando possível',
-    text: 'Quando o caminho físico otimizado do PNG está disponível, o build ainda compara os pixels com o ícone oficial do Eu Reciclo.',
+    title: 'Ícone oficial confirmado',
+    text: 'A verificação do launcher no APK final passou nos logs e continua obrigatória em cada Release.',
     bg: '#fffbeb',
     color: '#b45309'
   }
