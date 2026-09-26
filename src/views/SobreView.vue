@@ -174,6 +174,23 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.4.9', date:'Set 2026', changes:[
+    'Corrigido falso erro do verificador causado pelo encurtamento de caminhos de recursos em APK Release',
+    'Manifest binário e resources.arsc passam a ser a fonte principal para confirmar o launcher final',
+    'Comparação de pixels continua ativa quando o caminho físico otimizado do PNG está disponível'
+  ]},
+  { version:'1.4.8', date:'Set 2026', changes:[
+    'Validação do launcher passou a resolver android:icon e android:roundIcon no Manifest binário',
+    'IDs do launcher são conferidos na resources.arsc em vez de depender apenas do badging'
+  ]},
+  { version:'1.4.7', date:'Set 2026', changes:[
+    'Recursos padrão do launcher do Capacitor são removidos antes de aplicar o ícone oficial',
+    'Validação do launcher foi adicionada antes e depois da compilação'
+  ]},
+  { version:'1.4.6', date:'Set 2026', changes:[
+    'Build de produção migrado para APK Release assinado com chave permanente',
+    'Certificado do APK passa a ser validado antes da publicação'
+  ]},
   { version:'1.4.5', date:'Set 2026', changes:[
     'Tela de configuração inicial agora preenche corretamente a altura do aparelho sem faixa branca inferior',
     'Ícone oficial restaurado no launcher, instalação e splash Android com recursos para todas as densidades',

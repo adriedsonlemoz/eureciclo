@@ -52,7 +52,7 @@ test('build verifica a identidade visual do launcher dentro do APK', () => {
 })
 
 
-test('validador aceita adaptive icon anunciado via Manifest binário sem depender de application-icon PNG', () => {
+test('validador aceita caminhos físicos encurtados pelo otimizador Release', () => {
   const projectRoot = fileURLToPath(new URL('..', import.meta.url))
   const temp = mkdtempSync(join(tmpdir(), 'eu-reciclo-icon-test-'))
   const sdk = join(temp, 'sdk')
@@ -66,24 +66,35 @@ test('validador aceita adaptive icon anunciado via Manifest binário sem depende
 set -e
 case "$2" in
   badging)
-    echo "package: name='com.eureciclo.app' versionCode='10408' versionName='1.4.8'"
-    echo "application: label='Eu Reciclo' icon='res/mipmap-anydpi-v26/ic_launcher.xml'"
+    echo "package: name='com.eureciclo.app' versionCode='10409' versionName='1.4.9'"
+    echo "application: label='Eu Reciclo' icon='res/b0.xml'"
     ;;
   xmltree)
     cat <<'EOF'
 E: manifest (line=2)
   E: application (line=8)
-    A: android:icon(0x01010002)=@0x7f0d0001
-    A: android:roundIcon(0x0101052c)=@0x7f0d0002
+    A: android:icon(0x01010002)=@0x7f0c0000
+    A: android:roundIcon(0x0101052c)=@0x7f0c0001
     E: activity (line=12)
 EOF
     ;;
   resources)
     cat <<'EOF'
-spec resource 0x7f0d0001 com.eureciclo.app:mipmap/ic_launcher: flags=0x00000000
-resource 0x7f0d0001 com.eureciclo.app:mipmap/ic_launcher: t=0x03 d=0x00000000 (s=0x0008 r=0x00)
-spec resource 0x7f0d0002 com.eureciclo.app:mipmap/ic_launcher_round: flags=0x00000000
-resource 0x7f0d0002 com.eureciclo.app:mipmap/ic_launcher_round: t=0x03 d=0x00000000 (s=0x0008 r=0x00)
+spec resource 0x7f0c0000 com.eureciclo.app:mipmap/ic_launcher: flags=0x00000500
+resource 0x7f0c0000 com.eureciclo.app:mipmap/ic_launcher: t=0x03 d=0x00000000 (s=0x0008 r=0x00)
+  (string8) "res/a0.png"
+resource 0x7f0c0000 com.eureciclo.app:mipmap/ic_launcher: t=0x03 d=0x00000001 (s=0x0008 r=0x00)
+  (string8) "res/b0.xml"
+spec resource 0x7f0c0001 com.eureciclo.app:mipmap/ic_launcher_round: flags=0x00000500
+resource 0x7f0c0001 com.eureciclo.app:mipmap/ic_launcher_round: t=0x03 d=0x00000002 (s=0x0008 r=0x00)
+  (string8) "res/a1.png"
+resource 0x7f0c0001 com.eureciclo.app:mipmap/ic_launcher_round: t=0x03 d=0x00000003 (s=0x0008 r=0x00)
+  (string8) "res/b1.xml"
+spec resource 0x7f080001 com.eureciclo.app:drawable/ic_launcher_foreground: flags=0x00000400
+resource 0x7f080001 com.eureciclo.app:drawable/ic_launcher_foreground: t=0x03 d=0x00000004 (s=0x0008 r=0x00)
+  (string8) "res/a2.png"
+spec resource 0x7f060010 com.eureciclo.app:color/ic_launcher_background: flags=0x00000000
+resource 0x7f060010 com.eureciclo.app:color/ic_launcher_background: t=0x1c d=0xff15803d (s=0x0008 r=0x00)
 EOF
     ;;
   *) exit 2 ;;
@@ -96,19 +107,21 @@ esac
 set -e
 if [ "$1" = "-Z1" ]; then
   cat <<'EOF'
-res/mipmap-xxxhdpi/ic_launcher.png
-res/mipmap-xxxhdpi/ic_launcher_round.png
-res/drawable-xxxhdpi/ic_launcher_foreground.png
-res/mipmap-anydpi-v26/ic_launcher.xml
-res/mipmap-anydpi-v26/ic_launcher_round.xml
+res/a0.png
+res/a1.png
+res/a2.png
+res/b0.xml
+res/b1.xml
+AndroidManifest.xml
+resources.arsc
 EOF
   exit 0
 fi
 if [ "$1" = "-p" ]; then
   case "$3" in
-    res/mipmap-xxxhdpi/ic_launcher.png|res/mipmap-xxxhdpi/ic_launcher_round.png)
+    res/a0.png|res/a1.png)
       cat "$FAKE_PROJECT_ROOT/resources/android/mipmap-xxxhdpi/ic_launcher.png" ;;
-    res/drawable-xxxhdpi/ic_launcher_foreground.png)
+    res/a2.png)
       cat "$FAKE_PROJECT_ROOT/resources/android/drawable/ic_launcher_foreground.png" ;;
     *) exit 3 ;;
   esac
@@ -133,6 +146,79 @@ exit 4
   })
 
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
-  assert.match(result.stdout, /Manifest -> @mipmap\/ic_launcher \/ @mipmap\/ic_launcher_round/)
-  assert.match(result.stdout, /APK confirmado com o ícone oficial do Eu Reciclo/)
+  assert.match(result.stdout, /Manifest do APK: android:icon=.*@mipmap\/ic_launcher/)
+  assert.match(result.stdout, /Launcher principal: 1 PNG\(s\) referenciado\(s\) pelo APK conferido\(s\) por pixels/)
+  assert.match(result.stdout, /Foreground adaptive conferido por pixels/)
+  assert.match(result.stdout, /APK confirmado com o launcher oficial do Eu Reciclo/)
+})
+
+test('validador não falha quando aapt omite caminhos físicos dos recursos otimizados', () => {
+  const projectRoot = fileURLToPath(new URL('..', import.meta.url))
+  const temp = mkdtempSync(join(tmpdir(), 'eu-reciclo-icon-semantic-test-'))
+  const sdk = join(temp, 'sdk')
+  const buildTools = join(sdk, 'build-tools', '35.0.0')
+  const bin = join(temp, 'bin')
+  mkdirSync(buildTools, { recursive: true })
+  mkdirSync(bin, { recursive: true })
+
+  const aaptPath = join(buildTools, 'aapt')
+  writeFileSync(aaptPath, `#!/usr/bin/env bash
+set -e
+case "$2" in
+  badging)
+    echo "package: name='com.eureciclo.app' versionCode='10409' versionName='1.4.9'"
+    ;;
+  xmltree)
+    cat <<'EOT'
+E: manifest (line=2)
+  E: application (line=8)
+    A: android:icon(0x01010002)=@0x7f0c0000
+    A: android:roundIcon(0x0101052c)=@0x7f0c0001
+    E: activity (line=12)
+EOT
+    ;;
+  resources)
+    cat <<'EOT'
+spec resource 0x7f0c0000 com.eureciclo.app:mipmap/ic_launcher: flags=0x00000500
+resource 0x7f0c0000 com.eureciclo.app:mipmap/ic_launcher: t=0x03 d=0x00000000 (s=0x0008 r=0x00)
+spec resource 0x7f0c0001 com.eureciclo.app:mipmap/ic_launcher_round: flags=0x00000500
+resource 0x7f0c0001 com.eureciclo.app:mipmap/ic_launcher_round: t=0x03 d=0x00000001 (s=0x0008 r=0x00)
+spec resource 0x7f080001 com.eureciclo.app:drawable/ic_launcher_foreground: flags=0x00000400
+resource 0x7f080001 com.eureciclo.app:drawable/ic_launcher_foreground: t=0x03 d=0x00000002 (s=0x0008 r=0x00)
+spec resource 0x7f060010 com.eureciclo.app:color/ic_launcher_background: flags=0x00000000
+resource 0x7f060010 com.eureciclo.app:color/ic_launcher_background: t=0x1c d=0xff15803d (s=0x0008 r=0x00)
+EOT
+    ;;
+  *) exit 2 ;;
+esac
+`)
+  chmodSync(aaptPath, 0o755)
+
+  const unzipPath = join(bin, 'unzip')
+  writeFileSync(unzipPath, `#!/usr/bin/env bash
+set -e
+if [ "$1" = "-Z1" ]; then
+  printf '%s\n' AndroidManifest.xml resources.arsc res/x0 res/x1 res/x2
+  exit 0
+fi
+exit 3
+`)
+  chmodSync(unzipPath, 0o755)
+
+  const fakeApk = join(temp, 'app-release.apk')
+  writeFileSync(fakeApk, 'fixture')
+
+  const result = spawnSync(process.execPath, ['scripts/verify-android-icon.mjs', '--apk', fakeApk], {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      PATH: `${bin}:${process.env.PATH}`,
+      ANDROID_SDK_ROOT: sdk
+    }
+  })
+
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
+  assert.match(result.stdout, /identidade confirmada semanticamente em resources\.arsc/)
+  assert.match(result.stdout, /APK confirmado com o launcher oficial do Eu Reciclo \(semântica pós-otimização\)/)
 })

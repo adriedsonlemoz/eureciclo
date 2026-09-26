@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.9 — 2026-09-26
+
+- Corrigido o falso erro `recurso legacyEntry não foi empacotado no APK` observado no `Build-Android-APK-13`.
+- Confirmado pelos próprios logs que o APK Release foi compilado com sucesso e que o Manifest empacotado aponta `android:icon` para `@mipmap/ic_launcher` e `android:roundIcon` para `@mipmap/ic_launcher_round`.
+- A validação pós-build deixou de exigir nomes físicos como `res/mipmap-xxxhdpi/ic_launcher.png`, pois o otimizador de recursos do Android pode encurtar esses caminhos em builds Release.
+- O verificador agora usa Manifest binário + `resources.arsc` como fonte principal e confirma `ic_launcher`, `ic_launcher_round`, `ic_launcher_foreground` e `ic_launcher_background` pelo nome semântico compilado.
+- Quando a `resources.arsc` expõe o caminho físico otimizado do PNG, os pixels ainda são comparados com os recursos oficiais; quando o caminho é omitido/encurtado pela ferramenta, a validação semântica permanece válida sem gerar falso negativo.
+- Adicionados testes de regressão simulando APK Release com caminhos físicos encurtados (`res/a0.png`, `res/a1.png`, etc.) e saída do `aapt` sem caminhos físicos legíveis.
+- Versão sincronizada em `1.4.9` / `10409`.
+
 ## 1.4.8 — 2026-09-26
 
 - Corrigido falso erro da validação pós-build do launcher: o `aapt dump badging` pode anunciar adaptive icons como XML ou omitir as linhas `application-icon-*`, portanto não é uma fonte estável para exigir `ic_launcher.png`.

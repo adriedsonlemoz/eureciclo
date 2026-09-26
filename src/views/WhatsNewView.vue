@@ -20,7 +20,7 @@
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 4 4L19 6"/><path d="M12 22a10 10 0 1 0-10-10"/></svg>
           </div>
           <h2 class="text-slate-800 text-xl font-black">Ícone oficial garantido no APK</h2>
-          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.8 corrige a validação do launcher no APK e mantém a conferência real do ícone oficial antes da publicação.</p>
+          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.9 corrige o falso erro causado pela otimização de recursos do Android e mantém a validação do ícone oficial no APK final.</p>
         </section>
 
         <div class="grid gap-3">
@@ -62,22 +62,22 @@ const isManual = computed(() => route.query.manual === '1')
 const changes = [
   {
     icon: 'app',
-    title: 'Validação do launcher corrigida',
-    text: 'A checagem agora lê o android:icon e o android:roundIcon diretamente do Manifest binário do APK, sem depender do formato variável do badging.',
+    title: 'Validação Release corrigida',
+    text: 'O verificador não exige mais que o APK preserve nomes físicos como ic_launcher.png, pois o Android pode encurtá-los durante a otimização Release.',
     bg: '#ecfdf5',
     color: '#15803d'
   },
   {
     icon: 'list',
-    title: 'Ícone conferido de verdade',
-    text: 'O build resolve os IDs na resources.arsc e ainda compara os pixels dos PNGs empacotados com os recursos oficiais do Eu Reciclo.',
+    title: 'Launcher confirmado no APK',
+    text: 'A checagem lê o Manifest binário e a resources.arsc para confirmar ic_launcher, ic_launcher_round, foreground adaptativo e cor de fundo.',
     bg: '#eff6ff',
     color: '#2563eb'
   },
   {
     icon: 'layout',
-    title: 'Compatível com adaptive icon',
-    text: 'A validação aceita o comportamento correto do Android moderno, em que o launcher pode ser anunciado como recurso XML adaptativo.',
+    title: 'Pixels conferidos quando possível',
+    text: 'Quando o caminho físico otimizado do PNG está disponível, o build ainda compara os pixels com o ícone oficial do Eu Reciclo.',
     bg: '#fffbeb',
     color: '#b45309'
   }

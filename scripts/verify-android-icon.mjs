@@ -136,6 +136,11 @@ function readPngPixels(buffer, label) {
   return { width, height, pixelHash: sha256(rgba) }
 }
 
+function pixelSignature(path) {
+  const parsed = readPngPixels(readFileSync(path), path)
+  return `${parsed.width}x${parsed.height}:${parsed.pixelHash}`
+}
+
 function assertSamePixels(expectedPath, actualBuffer, actualLabel) {
   const expected = readPngPixels(readFileSync(expectedPath), expectedPath)
   const actual = readPngPixels(actualBuffer, actualLabel)
@@ -225,21 +230,79 @@ function getApplicationAttributeResourceId(xmlTree, attribute) {
   return null
 }
 
-function findResourceNameLine(resources, resourceId, expectedName) {
+function findResourceNameLine(resources, resourceId, expectedType, expectedName) {
   if (!resourceId) return null
   const escapedId = resourceId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const expected = new RegExp(`(?:spec\\s+)?resource\\s+${escapedId}\\s+com\\.eureciclo\\.app:mipmap/${expectedName}(?::|\\s)`, 'i')
+  const expected = new RegExp(`(?:spec\\s+)?resource\\s+${escapedId}\\s+com\\.eureciclo\\.app:${expectedType}/${expectedName}(?::|\\s)`, 'i')
   return resources.split(/\r?\n/).find(line => expected.test(line)) || null
 }
 
-function assertResourceIdName(resources, resourceId, expectedName, attribute) {
+function assertResourceIdName(resources, resourceId, expectedType, expectedName, attribute) {
   if (!resourceId) fail(`Manifest empacotado não declara android:${attribute}`)
-  const matchedLine = findResourceNameLine(resources, resourceId, expectedName)
+  const matchedLine = findResourceNameLine(resources, resourceId, expectedType, expectedName)
   if (!matchedLine) {
     const resourceLine = resources.split(/\r?\n/).find(line => line.toLowerCase().includes(resourceId)) || '(recurso não localizado)'
-    fail(`android:${attribute} não aponta para @mipmap/${expectedName}; ${resourceLine.trim()}`)
+    fail(`android:${attribute} não aponta para @${expectedType}/${expectedName}; ${resourceLine.trim()}`)
   }
   return matchedLine.trim()
+}
+
+function findResourceIdByName(resources, type, name) {
+  const escapedType = type.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const pattern = new RegExp(`(?:spec\\s+)?resource\\s+(0x[0-9a-f]+)\\s+com\\.eureciclo\\.app:${escapedType}/${escapedName}(?::|\\s)`, 'i')
+  for (const line of resources.split(/\r?\n/)) {
+    const match = line.match(pattern)
+    if (match) return match[1].toLowerCase()
+  }
+  return null
+}
+
+function assertCompiledResource(resources, type, name) {
+  const id = findResourceIdByName(resources, type, name)
+  if (!id) fail(`recurso compilado @${type}/${name} não foi encontrado em resources.arsc`)
+  return id
+}
+
+function findResourcePaths(resources, resourceId) {
+  const lines = resources.split(/\r?\n/)
+  const paths = new Set()
+  const idPattern = new RegExp(`^\\s*resource\\s+${resourceId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+  const pathPattern = /(?:"|')?(res\/[A-Za-z0-9_./-]+\.(?:png|webp|xml))(?:"|')?/gi
+
+  for (let i = 0; i < lines.length; i += 1) {
+    if (!idPattern.test(lines[i]) || /^\s*spec\s+resource\s+/i.test(lines[i])) continue
+    for (let j = i; j < Math.min(lines.length, i + 12); j += 1) {
+      if (j > i && /^\s*(?:spec\s+)?resource\s+0x[0-9a-f]+\b/i.test(lines[j])) break
+      for (const match of lines[j].matchAll(pathPattern)) paths.add(match[1])
+    }
+  }
+  return [...paths]
+}
+
+function canonicalLauncherSignatures(kind) {
+  const densities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']
+  const name = kind === 'round' ? 'ic_launcher_round.png' : 'ic_launcher.png'
+  return new Set(densities.map(density => pixelSignature(`resources/android/mipmap-${density}/${name}`)))
+}
+
+function verifyReferencedPngsIfVisible({ apkPath, entries, resources, resourceId, canonicalSignatures, label }) {
+  const paths = findResourcePaths(resources, resourceId)
+  const pngPaths = paths.filter(path => path.toLowerCase().endsWith('.png') && entries.has(path))
+  if (!pngPaths.length) {
+    console.log(`${label}: caminhos físicos foram encurtados/omitidos pelo otimizador; identidade confirmada semanticamente em resources.arsc.`)
+    return false
+  }
+
+  let checked = 0
+  for (const path of pngPaths) {
+    const parsed = readPngPixels(unzipEntry(apkPath, path), path)
+    const signature = `${parsed.width}x${parsed.height}:${parsed.pixelHash}`
+    if (!canonicalSignatures.has(signature)) fail(`${label}: ${path} não corresponde aos pixels oficiais do projeto`)
+    checked += 1
+  }
+  console.log(`${label}: ${checked} PNG(s) referenciado(s) pelo APK conferido(s) por pixels.`)
+  return true
 }
 
 function verifyApk(apkPath) {
@@ -250,37 +313,54 @@ function verifyApk(apkPath) {
   const badging = runAapt(aapt, ['dump', 'badging', apkPath], 'ler o badging do APK')
   if (!/package: name='com\.eureciclo\.app'/.test(badging)) fail('APK verificado não pertence ao package com.eureciclo.app')
 
-  // Não usamos as linhas application-icon-* do `aapt dump badging` como prova do
-  // launcher. Em APKs com adaptive icon elas podem apontar para XML, omitir as
-  // variantes legacy ou mudar de formato entre versões do build-tools. A fonte
-  // confiável é o Manifest binário + a tabela resources.arsc já empacotados.
+  // Release builds podem encurtar fisicamente nomes de arquivos em res/ (por
+  // exemplo, res/a.png). Portanto a prova principal não depende do nome do ZIP:
+  // usamos o Manifest binário + resources.arsc, que preservam os IDs e nomes
+  // semânticos @mipmap/ic_launcher e @mipmap/ic_launcher_round.
   const xmlTree = runAapt(aapt, ['dump', 'xmltree', apkPath, 'AndroidManifest.xml'], 'ler o AndroidManifest.xml do APK')
   const resources = runAapt(aapt, ['dump', 'resources', apkPath], 'ler a tabela de recursos do APK')
   const iconResourceId = getApplicationAttributeResourceId(xmlTree, 'icon')
   const roundIconResourceId = getApplicationAttributeResourceId(xmlTree, 'roundIcon')
-  const iconResourceLine = assertResourceIdName(resources, iconResourceId, 'ic_launcher', 'icon')
-  const roundIconResourceLine = assertResourceIdName(resources, roundIconResourceId, 'ic_launcher_round', 'roundIcon')
+  const iconResourceLine = assertResourceIdName(resources, iconResourceId, 'mipmap', 'ic_launcher', 'icon')
+  const roundIconResourceLine = assertResourceIdName(resources, roundIconResourceId, 'mipmap', 'ic_launcher_round', 'roundIcon')
+  const foregroundResourceId = assertCompiledResource(resources, 'drawable', 'ic_launcher_foreground')
+  assertCompiledResource(resources, 'color', 'ic_launcher_background')
+
   console.log(`Manifest do APK: android:icon=${iconResourceId} -> @mipmap/ic_launcher`)
   console.log(`Manifest do APK: android:roundIcon=${roundIconResourceId} -> @mipmap/ic_launcher_round`)
   console.log(`Tabela de recursos: ${iconResourceLine}`)
   console.log(`Tabela de recursos: ${roundIconResourceLine}`)
+  console.log(`Adaptive icon compilado: @drawable/ic_launcher_foreground=${foregroundResourceId} + @color/ic_launcher_background`)
 
-  const entries = unzipList(apkPath)
-  const legacyEntry = entries.find(entry => /^res\/mipmap-xxxhdpi(?:-v\d+)?\/ic_launcher\.png$/.test(entry))
-  const roundEntry = entries.find(entry => /^res\/mipmap-xxxhdpi(?:-v\d+)?\/ic_launcher_round\.png$/.test(entry))
-  const foregroundEntry = entries.find(entry => /^res\/drawable-xxxhdpi(?:-v\d+)?\/ic_launcher_foreground\.png$/.test(entry))
-  const adaptiveEntry = entries.find(entry => /^res\/mipmap-anydpi-v26\/ic_launcher\.xml$/.test(entry))
-  const roundAdaptiveEntry = entries.find(entry => /^res\/mipmap-anydpi-v26\/ic_launcher_round\.xml$/.test(entry))
+  const entries = new Set(unzipList(apkPath))
+  const legacyChecked = verifyReferencedPngsIfVisible({
+    apkPath,
+    entries,
+    resources,
+    resourceId: iconResourceId,
+    canonicalSignatures: canonicalLauncherSignatures('legacy'),
+    label: 'Launcher principal'
+  })
+  const roundChecked = verifyReferencedPngsIfVisible({
+    apkPath,
+    entries,
+    resources,
+    resourceId: roundIconResourceId,
+    canonicalSignatures: canonicalLauncherSignatures('round'),
+    label: 'Launcher redondo'
+  })
 
-  for (const [label, entry] of Object.entries({ legacyEntry, roundEntry, foregroundEntry, adaptiveEntry, roundAdaptiveEntry })) {
-    if (!entry) fail(`recurso ${label} não foi empacotado no APK`)
+  const foregroundPaths = findResourcePaths(resources, foregroundResourceId)
+  const foregroundPng = foregroundPaths.find(path => path.toLowerCase().endsWith('.png') && entries.has(path))
+  if (foregroundPng) {
+    const foreground = assertSamePixels(canonicalForeground, unzipEntry(apkPath, foregroundPng), foregroundPng)
+    console.log(`Foreground adaptive conferido por pixels: ${foreground.width}x${foreground.height}.`)
+  } else {
+    console.log('Foreground adaptive: caminho físico encurtado/omitido pelo otimizador; recurso compilado confirmado em resources.arsc.')
   }
 
-  const legacy = assertSamePixels(canonicalLegacy, unzipEntry(apkPath, legacyEntry), legacyEntry)
-  assertSamePixels(canonicalLegacy, unzipEntry(apkPath, roundEntry), roundEntry)
-  const foreground = assertSamePixels(canonicalForeground, unzipEntry(apkPath, foregroundEntry), foregroundEntry)
-
-  console.log(`APK confirmado com o ícone oficial do Eu Reciclo: Manifest -> @mipmap/ic_launcher / @mipmap/ic_launcher_round, legacy ${legacy.width}x${legacy.height} e adaptive ${foreground.width}x${foreground.height}.`)
+  const mode = legacyChecked || roundChecked || foregroundPng ? 'semântica + pixels disponíveis' : 'semântica pós-otimização'
+  console.log(`APK confirmado com o launcher oficial do Eu Reciclo (${mode}): Manifest e resources.arsc apontam para os recursos oficiais.`)
 }
 
 const args = process.argv.slice(2)
