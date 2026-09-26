@@ -4,8 +4,8 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 
 ## Versão
 
-- App: **1.4.10**
-- Android `versionCode`: **10410**
+- App: **1.4.11**
+- Android `versionCode`: **10411**
 - Application ID: `com.eureciclo.app`
 
 ## Funcionalidades
@@ -25,7 +25,7 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 - Doação via PIX com botão de copiar (`adriedson@outlook.com`)
 - Funcionamento offline
 - Modo Android em tela cheia imersivo
-- Ícone oficial aplicado ao APK, favicon e identidade interna
+- Novo ícone oficial full-bleed aplicado ao APK, favicon e identidade interna, sem bordas pretas
 - Ícones vetoriais consistentes nas telas principais
 - Safe area reforçada para o conteúdo não ficar sob a navegação inferior
 - Onboarding em tela cheia, sem faixa branca inferior
@@ -86,7 +86,7 @@ cd android
 ./gradlew assembleRelease
 ```
 
-`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode`, ativa o modo tela cheia imersivo e instala os recursos do ícone oficial no Android. `configure:android-signing` exige a chave permanente e não possui fallback para certificado Debug. A validação pós-build lê `android:icon` e `android:roundIcon` no Manifest binário do APK e resolve os IDs na `resources.arsc`. Ela não depende de nomes físicos como `res/mipmap-xxxhdpi/ic_launcher.png`, porque o otimizador Release do Android pode encurtar esses caminhos. Quando a tabela de recursos expõe o PNG físico otimizado, os pixels também são comparados com os arquivos oficiais.
+`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode`, ativa o modo tela cheia imersivo e instala os recursos do ícone oficial no Android. O pacote mantém PNGs legacy em todas as densidades para aparelhos antigos e adaptive icon em `mipmap-anydpi-v26` para Android 8.0/API 26 ou superior. O arquivo-base é full-bleed e não contém cantos pretos; a máscara final do launcher é aplicada pelo próprio Android. `configure:android-signing` exige a chave permanente e não possui fallback para certificado Debug. A validação pós-build lê `android:icon` e `android:roundIcon` no Manifest binário do APK e resolve os IDs na `resources.arsc`. Ela não depende de nomes físicos como `res/mipmap-xxxhdpi/ic_launcher.png`, porque o otimizador Release do Android pode encurtar esses caminhos. Quando a tabela de recursos expõe o PNG físico otimizado, os pixels também são comparados com os arquivos oficiais.
 
 ## GitHub Manager
 
@@ -100,7 +100,7 @@ A validação compara `package.json`, `package-lock.json` e `github-manager.json
 
 ## APK direto
 
-O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, exige os GitHub Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD`, gera o **APK Release assinado**, confere o certificado com `apksigner` e publica **`Eu-Reciclo-v1.4.10.apk`** diretamente como asset da Release `v1.4.10`. Em pull requests, os testes e o lint Android rodam sem acesso aos secrets e nenhum APK é publicado. A leitura do SHA-256 do certificado aceita tanto o formato atual `V2 Signer` quanto o formato legado `Signer #1` emitidos pelo `apksigner`.
+O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, exige os GitHub Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD`, gera o **APK Release assinado**, confere o certificado com `apksigner` e publica **`Eu-Reciclo-v1.4.11.apk`** diretamente como asset da Release `v1.4.11`. Em pull requests, os testes e o lint Android rodam sem acesso aos secrets e nenhum APK é publicado. A leitura do SHA-256 do certificado aceita tanto o formato atual `V2 Signer` quanto o formato legado `Signer #1` emitidos pelo `apksigner`.
 
 ## Tamanho do projeto
 

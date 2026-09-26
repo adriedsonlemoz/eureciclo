@@ -26,6 +26,7 @@ for (const directory of readdirSync(resRoot, { withFileTypes: true })) {
     'ic_launcher.png', 'ic_launcher.webp',
     'ic_launcher_round.png', 'ic_launcher_round.webp',
     'ic_launcher_foreground.png', 'ic_launcher_foreground.webp',
+    'ic_launcher_monochrome.png', 'ic_launcher_monochrome.webp',
     'ic_launcher.xml', 'ic_launcher_round.xml'
   ]) {
     const oldPath = join(target, name)
@@ -33,6 +34,7 @@ for (const directory of readdirSync(resRoot, { withFileTypes: true })) {
   }
 }
 
+// PNGs legacy cobrem Androids anteriores ao adaptive icon e launchers/OEMs que ainda os solicitam.
 const densities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']
 for (const density of densities) {
   const target = join(resRoot, `mipmap-${density}`)
@@ -64,6 +66,7 @@ writeFileSync(join(drawable, 'splash_background.xml'), `<?xml version="1.0" enco
 </layer-list>
 `)
 
+// Android 8.0/API 26+ usa adaptive icon; o sistema aplica a máscara do launcher.
 const adaptive = join(resRoot, 'mipmap-anydpi-v26')
 mkdirSync(adaptive, { recursive: true })
 const adaptiveXml = `<?xml version="1.0" encoding="utf-8"?>
@@ -112,4 +115,4 @@ if (existsSync(stylesPath)) {
   writeFileSync(stylesPath, styles)
 }
 
-console.log('Launcher oficial do Eu Reciclo aplicado sem recursos padrão do Capacitor.')
+console.log('Novo launcher do Eu Reciclo aplicado: PNG legacy + roundIcon + adaptive icon API 26+, sem bordas pretas.')

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.11 — 2026-09-26
+
+- Integrado o novo ícone oficial do Eu Reciclo com fundo verde full-bleed, removendo definitivamente os cantos/bordas pretas que faziam parte da imagem gerada.
+- `public/app-icon.png` e `src/assets/app-icon.png` foram substituídos pela nova identidade em alta resolução.
+- Recursos Android regenerados para `mdpi`, `hdpi`, `xhdpi`, `xxhdpi` e `xxxhdpi`, preservando launcher quadrado e variante `roundIcon`.
+- Android anterior ao adaptive icon continua usando os PNGs legacy; Android 8.0/API 26 ou superior usa `mipmap-anydpi-v26` com `ic_launcher_foreground` e fundo próprio.
+- A arte central permanece dentro de margem segura para que máscaras redondas, quadradas arredondadas e formatos de fabricantes não cortem o símbolo principal.
+- A splash nativa também passa a usar a nova identidade.
+- O verificador do projeto passa a rejeitar automaticamente cantos pretos opacos no launcher principal, evitando regressão antes do build.
+- Versão sincronizada em `1.4.11` / `10411`.
+
 ## 1.4.10 — 2026-09-26
 
 - Corrigido o falso erro `O certificado do APK não corresponde ao keystore permanente configurado` observado no `Build-Android-APK-14`.

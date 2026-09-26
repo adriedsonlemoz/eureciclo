@@ -40,6 +40,7 @@ const requiredAssets = [
   'src/assets/app-icon.png',
   'public/app-icon.png',
   'resources/android/drawable/ic_launcher_foreground.png',
+  'resources/android/source/app-icon-master.png',
   'resources/android/drawable/splash_logo.png',
   ...['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'].flatMap(density => [
     `resources/android/mipmap-${density}/ic_launcher.png`,

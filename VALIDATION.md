@@ -1,14 +1,17 @@
-# Validação — Eu Reciclo v1.4.10
+# Validação — Eu Reciclo v1.4.11
 
 Validações desta entrega:
 
-- Log `Build-Android-APK-14` analisado integralmente na etapa que falhou.
-- `assembleRelease`: **aprovado**; o APK `app-release.apk` foi gerado antes da falha de validação.
-- Verificação do launcher dentro do APK: **aprovada**; Manifest e `resources.arsc` resolveram `@mipmap/ic_launcher`, `@mipmap/ic_launcher_round`, `@drawable/ic_launcher_foreground` e `@color/ic_launcher_background`.
-- `apksigner verify`: **aprovado**, com assinatura v1 e v2 válidas, 1 signatário e certificado `CN=Eu Reciclo, OU=Android, O=Eu Reciclo, L=Sao Paulo, ST=SP, C=BR`.
-- SHA-256 informado pelo `apksigner`: `ac4d833375b94bcebce4386077085825e561c03f7f1cd6864ed99d8fb2759906`.
-- Keystore permanente reconstruído localmente a partir dos secrets fornecidos: certificado SHA-256 **idêntico** (`ac4d833375b94bcebce4386077085825e561c03f7f1cd6864ed99d8fb2759906`).
-- Causa da falha: o workflow 1.4.9 extraía somente linhas iniciadas por `Signer #1 certificate SHA-256 digest:`; o SDK atual retornou `V2 Signer: certificate SHA-256 digest:` e a variável ficou vazia.
-- Correção 1.4.10: novo parser de relatório aceita os formatos `V2 Signer` e `Signer #1`, normaliza o SHA-256 e rejeita saída sem certificado ou com mais de um certificado distinto.
-- `npm test`: **33/33 testes aprovados**, incluindo regressão para `V2 Signer`, `Signer #1` e relatório sem digest.
-- `npm run check:version`: **aprovado**, versão `1.4.10` / `10410`, 31 funções declaradas, ícone Android e assinatura Release prontos.
+- Novo arquivo mestre do ícone criado em `resources/android/source/app-icon-master.png`.
+- Cantos pretos removidos da arte: o fundo verde agora ocupa todo o quadrado do launcher principal.
+- `public/app-icon.png` e `src/assets/app-icon.png` sincronizados com a nova identidade.
+- PNGs legacy regenerados para `mdpi`, `hdpi`, `xhdpi`, `xxhdpi` e `xxxhdpi`.
+- Variantes `ic_launcher_round.png` possuem transparência externa em vez de preto.
+- Adaptive icon preservado em `mipmap-anydpi-v26` para Android 8.0/API 26 ou superior.
+- `android:icon` e `android:roundIcon` continuam apontando para os recursos oficiais.
+- Splash nativa atualizada para a nova identidade.
+- Verificação automática adicionada para rejeitar cantos pretos opacos no launcher principal.
+- `npm test`: **34/34 testes aprovados**, incluindo a nova regressão de compatibilidade legacy/adaptive e proteção contra cantos pretos.
+- `npm run check:version`: **aprovado**, versão `1.4.11` / `10411`, 32 funções declaradas.
+- Verificação direta dos PNGs: os quatro cantos do launcher quadrado são verdes e opacos em todas as densidades; `roundIcon` usa transparência real nos cantos, sem pixels pretos.
+- `npm run build` não foi repetido neste ambiente porque a reinstalação completa das dependências excedeu o tempo disponível; o workflow do GitHub continua responsável pelo build Android integral.

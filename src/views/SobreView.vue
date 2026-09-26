@@ -174,6 +174,12 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.4.11', date:'Set 2026', changes:[
+    'Novo ícone oficial integrado sem bordas pretas incorporadas ao arquivo',
+    'Launcher legacy mantido em mdpi, hdpi, xhdpi, xxhdpi e xxxhdpi para Android antigos',
+    'Adaptive icon mantido para Android 8+ com margem segura e máscara aplicada pelo sistema',
+    'Validação pré-build passa a rejeitar cantos pretos opacos no launcher principal'
+  ]},
   { version:'1.4.10', date:'Set 2026', changes:[
     'Corrigida a leitura do SHA-256 do certificado nas versões atuais do apksigner',
     'Validação aceita V2 Signer e o formato legado Signer #1 sem reduzir a segurança',

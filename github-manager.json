@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "name": "Eu Reciclo",
-  "versionName": "1.4.10",
-  "versionCode": 10410,
+  "versionName": "1.4.11",
+  "versionCode": 10411,
   "applicationId": "com.eureciclo.app",
   "namespace": "com.eureciclo.app",
   "type": "Android",
@@ -43,6 +43,7 @@
     "Validação visual do ícone oficial dentro do APK final antes da publicação",
     "Validação pós-build do launcher baseada no Manifest binário e resources.arsc, compatível com adaptive icons",
     "Validação pós-build compatível com encurtamento de caminhos de recursos do Android Release",
-    "Validação do certificado do APK compatível com formatos atuais e legados do apksigner"
+    "Validação do certificado do APK compatível com formatos atuais e legados do apksigner",
+    "Novo ícone oficial full-bleed sem bordas pretas, com launcher legacy e adaptive icon compatíveis com Android"
   ]
 }

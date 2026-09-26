@@ -19,8 +19,8 @@
           <div class="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(34,197,94,.14);color:#15803d;">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 4 4L19 6"/><path d="M12 22a10 10 0 1 0-10-10"/></svg>
           </div>
-          <h2 class="text-slate-800 text-xl font-black">Assinatura Release validada corretamente</h2>
-          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.10 corrige a leitura do certificado no apksigner sem enfraquecer a validação da assinatura nem do ícone oficial.</p>
+          <h2 class="text-slate-800 text-xl font-black">Novo ícone oficial integrado</h2>
+          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.11 integra a nova identidade visual sem bordas pretas e mantém recursos próprios para Android antigo e adaptive icon no Android 8+.</p>
         </section>
 
         <div class="grid gap-3">
@@ -62,22 +62,22 @@ const isManual = computed(() => route.query.manual === '1')
 const changes = [
   {
     icon: 'app',
-    title: 'Certificado reconhecido corretamente',
-    text: 'A validação agora entende tanto a saída atual V2 Signer quanto o formato legado Signer #1 do apksigner.',
+    title: 'Novo ícone do Eu Reciclo',
+    text: 'A nova arte foi integrada ao app, ao launcher e à splash com fundo verde preenchendo todo o arquivo, sem cantos pretos incorporados.',
     bg: '#ecfdf5',
     color: '#15803d'
   },
   {
-    icon: 'list',
-    title: 'Segurança preservada',
-    text: 'O SHA-256 extraído do APK continua sendo comparado ao certificado real do keystore permanente antes da publicação.',
+    icon: 'layout',
+    title: 'Compatível com diferentes Android',
+    text: 'Versões antigas usam PNGs dedicados em todas as densidades; Android 8 ou superior usa adaptive icon com máscara definida pelo próprio aparelho.',
     bg: '#eff6ff',
     color: '#2563eb'
   },
   {
-    icon: 'layout',
-    title: 'Ícone oficial confirmado',
-    text: 'A verificação do launcher no APK final passou nos logs e continua obrigatória em cada Release.',
+    icon: 'list',
+    title: 'Verificação reforçada',
+    text: 'A validação agora também rejeita cantos pretos opacos no ícone quadrado antes de permitir a publicação do APK.',
     bg: '#fffbeb',
     color: '#b45309'
   }

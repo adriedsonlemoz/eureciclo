@@ -28,6 +28,13 @@ test('ícone Android usa apenas o recurso padrão de background', () => {
   assert.match(fullscreenScript, /androidx\.core\.splashscreen\.SplashScreen/)
 })
 
+test('launcher mantém compatibilidade legacy e adaptive sem aceitar cantos pretos', () => {
+  assert.match(script, /mipmap-anydpi-v26/)
+  assert.match(script, /mdpi.*hdpi.*xhdpi.*xxhdpi.*xxxhdpi/s)
+  assert.match(verifyScript, /assertNoOpaqueBlackCorners/)
+  assert.match(verifyScript, /canto preto opaco/)
+})
+
 test('splash background usa drawable válido em vez de cor literal no android:drawable', () => {
   assert.doesNotMatch(script, /android:drawable=["']#[0-9A-Fa-f]{6,8}["']/)
   assert.match(script, /<shape android:shape="rectangle">/)
@@ -119,8 +126,10 @@ EOF
 fi
 if [ "$1" = "-p" ]; then
   case "$3" in
-    res/a0.png|res/a1.png)
+    res/a0.png)
       cat "$FAKE_PROJECT_ROOT/resources/android/mipmap-xxxhdpi/ic_launcher.png" ;;
+    res/a1.png)
+      cat "$FAKE_PROJECT_ROOT/resources/android/mipmap-xxxhdpi/ic_launcher_round.png" ;;
     res/a2.png)
       cat "$FAKE_PROJECT_ROOT/resources/android/drawable/ic_launcher_foreground.png" ;;
     *) exit 3 ;;

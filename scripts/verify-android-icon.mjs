@@ -133,7 +133,28 @@ function readPngPixels(buffer, label) {
     }
   }
 
-  return { width, height, pixelHash: sha256(rgba) }
+  return { width, height, pixelHash: sha256(rgba), rgba }
+}
+
+
+function assertNoOpaqueBlackCorners(path, label = path) {
+  const parsed = readPngPixels(readFileSync(path), label)
+  const points = [
+    [0, 0],
+    [parsed.width - 1, 0],
+    [0, parsed.height - 1],
+    [parsed.width - 1, parsed.height - 1]
+  ]
+  for (const [x, y] of points) {
+    const offset = (y * parsed.width + x) * 4
+    const r = parsed.rgba[offset]
+    const g = parsed.rgba[offset + 1]
+    const b = parsed.rgba[offset + 2]
+    const a = parsed.rgba[offset + 3]
+    if (a >= 224 && r < 40 && g < 40 && b < 40) {
+      fail(`${label} contém canto preto opaco em ${x},${y}`)
+    }
+  }
 }
 
 function pixelSignature(path) {
@@ -155,8 +176,9 @@ function verifyProject() {
   const adaptivePath = join(generatedRoot, 'res/mipmap-anydpi-v26/ic_launcher.xml')
   const roundAdaptivePath = join(generatedRoot, 'res/mipmap-anydpi-v26/ic_launcher_round.xml')
   const foregroundPath = join(generatedRoot, 'res/drawable-xxxhdpi/ic_launcher_foreground.png')
+  const masterPath = 'resources/android/source/app-icon-master.png'
 
-  for (const path of [canonicalLegacy, canonicalForeground, manifestPath, adaptivePath, roundAdaptivePath, foregroundPath]) {
+  for (const path of [canonicalLegacy, canonicalForeground, masterPath, manifestPath, adaptivePath, roundAdaptivePath, foregroundPath]) {
     if (!existsSync(path)) fail(`recurso obrigatório ausente: ${path}`)
   }
 
@@ -170,7 +192,11 @@ function verifyProject() {
     if (!xml.includes('@drawable/ic_launcher_foreground')) fail(`${path} não usa o foreground oficial`)
   }
 
+  assertNoOpaqueBlackCorners(canonicalLegacy, 'launcher principal oficial')
+  assertNoOpaqueBlackCorners(masterPath, 'arquivo mestre do ícone')
+
   const canonicalForegroundBytes = readFileSync(canonicalForeground)
+  assertNoOpaqueBlackCorners(canonicalForeground, 'foreground adaptive oficial')
   if (!readFileSync(foregroundPath).equals(canonicalForegroundBytes)) fail('foreground Android gerado difere do recurso oficial')
 
   const densities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']
@@ -185,7 +211,7 @@ function verifyProject() {
 
   const icon = readPngPixels(readFileSync(canonicalLegacy), canonicalLegacy)
   const foreground = readPngPixels(canonicalForegroundBytes, canonicalForeground)
-  console.log(`Projeto Android usa o ícone oficial: legacy ${icon.width}x${icon.height}, adaptive ${foreground.width}x${foreground.height}.`)
+  console.log(`Projeto Android usa o novo ícone oficial sem cantos pretos: legacy ${icon.width}x${icon.height}, adaptive ${foreground.width}x${foreground.height}.`)
 }
 
 function unzipList(apkPath) {
