@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build-apk:
-    name: Build Debug APK
+    name: Build signed Release APK
     runs-on: ubuntu-latest
 
     steps:
@@ -50,6 +50,10 @@ jobs:
             echo '::error::node_modules não deve ser versionado no repositório.'
             exit 1
           fi
+          if git ls-files '*.jks' '*.keystore' 'key.properties' | grep -q .; then
+            echo '::error::Arquivos de assinatura não podem ser versionados no repositório.'
+            exit 1
+          fi
 
       - name: Install npm dependencies
         run: npm ci
@@ -69,28 +73,117 @@ jobs:
       - name: Prepare Android project
         run: npm run android:prepare
 
-      - name: Make gradlew executable
+      - name: Validate Android project on pull request
+        if: github.event_name == 'pull_request'
         working-directory: android
-        run: chmod +x gradlew
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:lint --no-daemon
 
-      - name: Build debug APK
+      - name: Require release signing secrets
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::GitHub Secret obrigatório ausente: $name"
+              exit 1
+            fi
+          done
+
+          KEYSTORE_PATH="$RUNNER_TEMP/eu-reciclo-release.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          chmod 600 "$KEYSTORE_PATH"
+
+          if [ ! -s "$KEYSTORE_PATH" ]; then
+            echo '::error::O keystore decodificado ficou vazio.'
+            exit 1
+          fi
+
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$ANDROID_KEYSTORE_PASSWORD" -alias "$ANDROID_KEY_ALIAS" >/dev/null
+          echo "ANDROID_KEYSTORE_PATH=$KEYSTORE_PATH" >> "$GITHUB_ENV"
+
+      - name: Configure permanent Release signing
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: npm run configure:android-signing
+
+      - name: Build signed Release APK
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Verify APK signature and certificate
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="android/app/build/outputs/apk/release/app-release.apk"
+          if [ ! -f "$APK" ]; then
+            echo '::error::APK Release não foi gerado no caminho esperado.'
+            exit 1
+          fi
+
+          APKSIGNER=$(find "$ANDROID_SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)
+          if [ -z "$APKSIGNER" ]; then
+            echo '::error::apksigner não encontrado no Android SDK.'
+            exit 1
+          fi
+
+          REPORT="$RUNNER_TEMP/apksigner-report.txt"
+          "$APKSIGNER" verify --verbose --print-certs "$APK" | tee "$REPORT"
+
+          if grep -qi 'Android Debug' "$REPORT"; then
+            echo '::error::O APK foi assinado com certificado Android Debug.'
+            exit 1
+          fi
+
+          APK_CERT_SHA256=$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$REPORT" | head -n 1 | tr '[:upper:]' '[:lower:]')
+          KEYSTORE_CERT_SHA256=$(keytool -exportcert \
+            -keystore "$ANDROID_KEYSTORE_PATH" \
+            -storepass "$ANDROID_KEYSTORE_PASSWORD" \
+            -alias "$ANDROID_KEY_ALIAS" 2>/dev/null | sha256sum | awk '{print $1}')
+
+          if [ -z "$APK_CERT_SHA256" ] || [ "$APK_CERT_SHA256" != "$KEYSTORE_CERT_SHA256" ]; then
+            echo '::error::O certificado do APK não corresponde ao keystore permanente configurado.'
+            exit 1
+          fi
+
+          echo "APK Release assinado e certificado conferido: ${APK_CERT_SHA256}"
 
       - name: Prepare versioned APK
+        if: github.event_name != 'pull_request'
         id: apk
         shell: bash
         run: |
           APP_VERSION=$(node -p "require('./package.json').version")
           APK_NAME="Eu-Reciclo-v${APP_VERSION}.apk"
           mkdir -p release
-          cp android/app/build/outputs/apk/debug/app-debug.apk "release/$APK_NAME"
+          cp android/app/build/outputs/apk/release/app-release.apk "release/$APK_NAME"
           echo "version=$APP_VERSION" >> "$GITHUB_OUTPUT"
           echo "name=$APK_NAME" >> "$GITHUB_OUTPUT"
           echo "path=release/$APK_NAME" >> "$GITHUB_OUTPUT"
 
       # GitHub Actions artifacts são baixados como ZIP. Para entregar o APK
-      # diretamente, publicamos o .apk como asset de uma GitHub Release.
+      # diretamente, publicamos o .apk assinado como asset de uma GitHub Release.
       - name: Publish APK directly to GitHub Release
         if: github.event_name != 'pull_request'
         env:
@@ -107,7 +200,7 @@ jobs:
           else
             gh release create "$TAG" "$APK_PATH" \
               --title "$TITLE" \
-              --notes "APK Android gerado automaticamente para a versão ${APK_VERSION}."
+              --notes "APK Android Release assinado com a chave permanente para a versão ${APK_VERSION}."
           fi
 
       - name: Verify release APK
@@ -127,15 +220,16 @@ jobs:
 
       - name: Build summary
         run: |
-          echo "## ✅ APK Build concluído!" >> "$GITHUB_STEP_SUMMARY"
+          APP_VERSION=$(node -p "require('./package.json').version")
+          echo "## ✅ Validação Android concluída" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Versão:** \`${{ steps.apk.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Versão:** \`${APP_VERSION}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "**Branch:** \`${{ github.ref_name }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "**Commit:** \`${{ github.sha }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "**APK:** \`${{ steps.apk.outputs.name }}\`" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "> 📥 O APK está na aba **Releases** como arquivo .apk direto (não dentro de artifact ZIP)." >> "$GITHUB_STEP_SUMMARY"
+            echo "**APK:** \`${{ steps.apk.outputs.name }}\`" >> "$GITHUB_STEP_SUMMARY"
+            echo "> 📥 APK Release assinado com a chave permanente e publicado diretamente em **Releases**." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "> Pull request validado sem publicar Release." >> "$GITHUB_STEP_SUMMARY"
+            echo "> Pull request validado sem acesso aos secrets e sem publicar APK." >> "$GITHUB_STEP_SUMMARY"
           fi

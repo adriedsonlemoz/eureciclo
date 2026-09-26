@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "name": "Eu Reciclo",
-  "versionName": "1.4.5",
-  "versionCode": 10405,
+  "versionName": "1.4.6",
+  "versionCode": 10406,
   "applicationId": "com.eureciclo.app",
   "namespace": "com.eureciclo.app",
   "type": "Android",
@@ -36,6 +36,8 @@
     "Filtros horizontais com indicador de continuação e rolagem assistida",
     "Personalização visual de materiais opcional com cor automática por categoria",
     "Onboarding em altura total sem faixa inferior indevida",
-    "Tela de novidades e correções exibida uma vez por versão"
+    "Tela de novidades e correções exibida uma vez por versão",
+    "APK Android Release assinado com chave permanente via GitHub Secrets",
+    "Validação automática do certificado do APK antes da publicação"
   ]
 }

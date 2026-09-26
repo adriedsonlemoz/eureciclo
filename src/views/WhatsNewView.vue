@@ -19,8 +19,8 @@
           <div class="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(34,197,94,.14);color:#15803d;">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 4 4L19 6"/><path d="M12 22a10 10 0 1 0-10-10"/></svg>
           </div>
-          <h2 class="text-slate-800 text-xl font-black">O Eu Reciclo ficou mais polido</h2>
-          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">Esta tela aparece uma única vez por versão, depois da instalação ou atualização.</p>
+          <h2 class="text-slate-800 text-xl font-black">APK de produção mais seguro</h2>
+          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.6 passa a usar assinatura permanente no APK de produção.</p>
         </section>
 
         <div class="grid gap-3">
@@ -61,23 +61,23 @@ const isManual = computed(() => route.query.manual === '1')
 
 const changes = [
   {
-    icon: 'layout',
-    title: 'Tela inicial sem faixa branca',
-    text: 'O onboarding agora ocupa corretamente toda a área útil da tela, inclusive na parte inferior.',
+    icon: 'app',
+    title: 'APK Release com assinatura permanente',
+    text: 'As novas versões passam a ser geradas em modo Release e assinadas com a chave permanente do projeto.',
     bg: '#ecfdf5',
     color: '#15803d'
   },
   {
-    icon: 'app',
-    title: 'Ícone oficial no Android',
-    text: 'Launcher, tela de instalação e splash passam a usar os recursos oficiais do Eu Reciclo em todas as densidades.',
+    icon: 'list',
+    title: 'Assinatura verificada antes da publicação',
+    text: 'O processo de build confere automaticamente se o certificado do APK corresponde ao keystore correto.',
     bg: '#eff6ff',
     color: '#2563eb'
   },
   {
-    icon: 'list',
-    title: 'Novidades após cada atualização',
-    text: 'As mudanças da versão são apresentadas uma vez e não ficam interrompendo o uso nas próximas aberturas.',
+    icon: 'layout',
+    title: 'Proteção contra build Debug',
+    text: 'A publicação é interrompida se a chave permanente estiver ausente ou se o APK não estiver corretamente assinado.',
     bg: '#fffbeb',
     color: '#b45309'
   }

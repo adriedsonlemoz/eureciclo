@@ -4,8 +4,8 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 
 ## Versão
 
-- App: **1.4.5**
-- Android `versionCode`: **10405**
+- App: **1.4.6**
+- Android `versionCode`: **10406**
 - Application ID: `com.eureciclo.app`
 
 ## Funcionalidades
@@ -30,7 +30,7 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 - Safe area reforçada para o conteúdo não ficar sob a navegação inferior
 - Onboarding em tela cheia, sem faixa branca inferior
 - Tela de novidades e correções exibida uma vez por versão após instalar ou atualizar
-- APK publicado diretamente na GitHub Release
+- APK Release assinado com chave permanente e publicado diretamente na GitHub Release
 
 ## Preços iniciais
 
@@ -70,17 +70,23 @@ Build web:
 npm run build
 ```
 
-Android local:
+Android local para desenvolvimento:
 
 ```bash
 npm run build
 npx cap add android   # apenas se android/ não existir
 npm run android:prepare
-cd android
-./gradlew assembleDebug
 ```
 
-`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode`, ativa o modo tela cheia imersivo e instala os recursos do ícone oficial no Android. O pacote-fonte mantém os launchers em todas as densidades e o foreground adaptativo para evitar o ícone padrão do template.
+Para gerar um APK de produção, configure `ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD` no ambiente e execute:
+
+```bash
+npm run configure:android-signing
+cd android
+./gradlew assembleRelease
+```
+
+`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode`, ativa o modo tela cheia imersivo e instala os recursos do ícone oficial no Android. `configure:android-signing` exige a chave permanente e não possui fallback para certificado Debug.
 
 ## GitHub Manager
 
@@ -94,7 +100,7 @@ A validação compara `package.json`, `package-lock.json` e `github-manager.json
 
 ## APK direto
 
-O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, publica o arquivo **`Eu-Reciclo-v1.4.5.apk`** diretamente como asset da Release `v1.4.5`.
+O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, exige os GitHub Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD`, gera o **APK Release assinado**, confere o certificado com `apksigner` e publica **`Eu-Reciclo-v1.4.6.apk`** diretamente como asset da Release `v1.4.6`. Em pull requests, os testes e o lint Android rodam sem acesso aos secrets e nenhum APK é publicado.
 
 ## Tamanho do projeto
 

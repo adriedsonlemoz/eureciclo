@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.4.6 — 2026-09-26
+
+- Build Android de produção migrado de `assembleDebug` para `assembleRelease`.
+- GitHub Actions passa a reconstruir o keystore temporariamente a partir de `ANDROID_KEYSTORE_BASE64` e exige os quatro secrets de assinatura permanente.
+- Adicionado `scripts/configure-android-signing.mjs`, que injeta a configuração Release no projeto Android gerado pelo Capacitor sem gravar senhas ou chave no repositório.
+- Removido qualquer fallback silencioso para assinatura Debug no fluxo de produção.
+- O APK final é validado com `apksigner` e seu SHA-256 de certificado é comparado ao certificado exportado do keystore antes da publicação.
+- Pull requests executam testes e lint Android sem produzir APK de distribuição.
+- `.gitignore` reforçado para bloquear `.jks`, `.keystore` e `key.properties`.
+- `package.json`, `package-lock.json` e `github-manager.json` sincronizados em `1.4.6` / `10406`.
+
 ## 1.4.5 — 2026-09-26
 
 - Corrigido o espaço branco inferior do onboarding: rotas sem navegação inferior deixam de herdar o padding reservado ao menu principal e passam a preencher a altura dinâmica do aparelho.

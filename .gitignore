@@ -17,3 +17,8 @@ npm-debug.log*
 .env
 .env.*
 !.env.example
+
+# Android signing credentials
+*.jks
+*.keystore
+key.properties
