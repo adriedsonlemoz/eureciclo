@@ -57,6 +57,19 @@
       </section>
 
       <section class="glass-card rounded-2xl p-5">
+        <router-link to="/novidades?manual=1" class="mb-4 w-full rounded-xl px-3.5 py-3 flex items-center justify-between gap-3 active:scale-[.99]" style="background:#f0fdf4;border:1px solid #bbf7d0;">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-eco-700" style="background:#dcfce7;">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/><path d="m17 16 2 2 3-4"/></svg>
+            </div>
+            <div class="min-w-0 text-left">
+              <p class="font-app font-black text-sm text-eco-800">Novidades da versão</p>
+              <p class="font-app text-[11px] text-slate-500 truncate">Rever o que mudou na v{{ APP_VERSION }}</p>
+            </div>
+          </div>
+          <span class="font-app text-eco-700 font-black">›</span>
+        </router-link>
+
         <button @click="changelogOpen = !changelogOpen" class="w-full flex items-center justify-between gap-3 text-left">
           <div class="flex items-center gap-2 min-w-0">
             <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2h6v2M9 9h6M9 13h6M9 17h4"/></svg>
@@ -161,6 +174,11 @@ const features = [
 ]
 
 const changelog = [
+  { version:'1.4.5', date:'Set 2026', changes:[
+    'Tela de configuração inicial agora preenche corretamente a altura do aparelho sem faixa branca inferior',
+    'Ícone oficial restaurado no launcher, instalação e splash Android com recursos para todas as densidades',
+    'Nova tela de Novidades e correções exibida uma vez após instalar ou atualizar e disponível novamente em Ajustes'
+  ]},
   { version:'1.4.4', date:'Set 2026', changes:[
     'Corrigido o build Android da splash nativa que falhava na etapa processDebugResources',
     'Fundo da splash agora usa um drawable Android válido sem perder a identidade do Eu Reciclo',

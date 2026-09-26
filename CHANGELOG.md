@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.5 — 2026-09-26
+
+- Corrigido o espaço branco inferior do onboarding: rotas sem navegação inferior deixam de herdar o padding reservado ao menu principal e passam a preencher a altura dinâmica do aparelho.
+- Recursos oficiais do ícone Android foram restaurados no pacote-fonte para `mdpi`, `hdpi`, `xhdpi`, `xxhdpi` e `xxxhdpi`, incluindo ícone redondo, foreground adaptativo e splash.
+- O ícone do Eu Reciclo passa a ser aplicado explicitamente ao Manifest durante `android:prepare`, evitando o robô padrão do template no launcher/tela de instalação.
+- Adicionada a tela “Novidades e correções”, exibida uma única vez por versão depois da configuração inicial ou na primeira abertura após atualização.
+- A tela de novidades pode ser reaberta manualmente em Ajustes.
+- `package.json`, `package-lock.json` e `github-manager.json` sincronizados em `1.4.5` / `10405`.
+
 ## 1.4.4 — 2026-09-15
 
 - Corrigido o build Android que falhava em `processDebugResources` por uso inválido de cor hexadecimal diretamente em `android:drawable` na splash nativa.

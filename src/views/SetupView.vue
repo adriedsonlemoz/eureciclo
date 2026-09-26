@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen flex flex-col" style="background:linear-gradient(160deg,#052e16 0%,#14532d 42%,#15803d 100%);">
-    <div class="relative z-10 flex flex-col flex-1 px-6 pt-10 pb-10 overflow-y-auto">
+  <div class="setup-page min-h-dvh flex flex-col" style="background:linear-gradient(160deg,#052e16 0%,#14532d 42%,#15803d 100%);">
+    <div class="setup-scroll relative z-10 flex flex-col flex-1 px-6 overflow-y-auto">
       <div class="flex flex-col items-center mb-7">
         <div class="w-16 h-16 rounded-2xl overflow-hidden mb-3 shadow-xl"><img :src="appIcon" alt="" class="w-full h-full object-cover" /></div>
         <h1 class="text-3xl font-black text-white tracking-tight">Eu Reciclo</h1>
@@ -153,7 +153,7 @@ const suspiciousPrices = computed(() => setupMaterials.flatMap(material => {
 
 function completeSetup() {
   applySetup({ userName: userName.value, pricesByMaterial })
-  router.replace('/')
+  router.replace({ name: 'whats-new' })
 }
 function finish() {
   if (suspiciousPrices.value.length && !unusualPricesConfirmed.value) {
@@ -193,6 +193,8 @@ const PriceRow = defineComponent({
 </script>
 
 <style scoped>
+.setup-page { min-height:100vh; min-height:100dvh; }
+.setup-scroll { padding-top:max(2.5rem, env(safe-area-inset-top)); padding-bottom:max(2.5rem, env(safe-area-inset-bottom)); }
 .setup-card { background:#fff; border:1px solid #e5ece7; box-shadow:0 4px 16px rgba(0,0,0,.05); }
 .slide-step-enter-active,.slide-step-leave-active { transition:all .26s cubic-bezier(.4,0,.2,1); }
 .slide-step-enter-from { opacity:0; transform:translateX(28px); }

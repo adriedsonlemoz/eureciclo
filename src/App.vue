@@ -1,23 +1,24 @@
 <template>
   <div class="relative min-h-dvh flex flex-col app-shell overflow-hidden">
-    <main class="flex-1 relative z-10 overflow-y-auto app-content">
+    <main class="flex-1 relative z-10 overflow-y-auto" :class="{ 'app-content': showBottomNav }">
       <router-view v-slot="{ Component, route: currentRoute }">
         <transition :name="transitionName" mode="out-in">
-          <component :is="Component" :key="currentRoute.path" />
+          <component :is="Component" :key="currentRoute.fullPath" />
         </transition>
       </router-view>
     </main>
-    <BottomNav v-if="route.name !== 'setup'" class="fixed bottom-0 left-0 right-0 z-50" />
+    <BottomNav v-if="showBottomNav" class="fixed bottom-0 left-0 right-0 z-50" />
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import BottomNav from '@/components/BottomNav.vue'
 
 const route = useRoute()
 const transitionName = ref('fade')
+const showBottomNav = computed(() => !['setup', 'whats-new'].includes(String(route.name || '')))
 const routeOrder = { '/':0, '/calculator':1, '/sales':2, '/meta-compra':2.5, '/materials':3, '/sobre':4 }
 watch(() => route.path, (to, from) => {
   const toOrder = routeOrder[to] ?? -1

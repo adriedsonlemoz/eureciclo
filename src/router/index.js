@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import { isSetupDone } from '@/composables/useMaterials'
+import { shouldShowWhatsNew } from '@/composables/useWhatsNew'
 
 const routes = [
   {
@@ -8,6 +9,12 @@ const routes = [
     name: 'setup',
     component: () => import('@/views/SetupView.vue'),
     meta: { title: 'Configuração inicial' }
+  },
+  {
+    path: '/novidades',
+    name: 'whats-new',
+    component: () => import('@/views/WhatsNewView.vue'),
+    meta: { title: 'Novidades e correções' }
   },
   {
     path: '/',
@@ -67,10 +74,14 @@ const router = createRouter({
   }
 })
 
-// Guard: redirect to setup on first launch
+// Fluxo inicial: configuração primeiro; depois, as novidades da versão aparecem uma única vez.
 router.beforeEach((to) => {
-  if (to.name !== 'setup' && !isSetupDone()) {
+  const setupDone = isSetupDone()
+  if (to.name !== 'setup' && !setupDone) {
     return { name: 'setup' }
+  }
+  if (setupDone && to.name !== 'setup' && to.name !== 'whats-new' && shouldShowWhatsNew()) {
+    return { name: 'whats-new' }
   }
 })
 
