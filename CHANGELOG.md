@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.7 — 2026-09-26
+
+- Reforçada a aplicação do ícone oficial do Eu Reciclo no launcher Android.
+- Removidas automaticamente variantes de ícone herdadas do template do Capacitor antes de copiar os recursos oficiais.
+- Camada do adaptive icon movida para `drawable-xxxhdpi`, preservando 432 px como 108 dp.
+- Adicionada validação do Manifest e dos recursos Android gerados antes do build.
+- Adicionada validação pós-build que abre o APK, confere `aapt dump badging` e compara os pixels do launcher com os recursos oficiais.
+- O APK deixa de ser publicado se o ícone empacotado não corresponder ao ícone oficial.
+- Versão sincronizada em `1.4.7` / `10407`.
+
 ## 1.4.6 — 2026-09-26
 
 - Build Android de produção migrado de `assembleDebug` para `assembleRelease`.

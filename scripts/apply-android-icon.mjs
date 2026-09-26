@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, copyFileSync, rmSync, writeFileSync, readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, copyFileSync, rmSync, writeFileSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
 const resRoot = 'android/app/src/main/res'
@@ -15,22 +15,41 @@ if (!existsSync(sourceRoot)) {
   process.exit(1)
 }
 
+// O template do Capacitor traz seu próprio launcher. Removemos qualquer variante
+// anterior antes de copiar a identidade do Eu Reciclo para impedir que o APK
+// mantenha o robô padrão por resolução, formato redondo ou adaptive icon.
+for (const directory of readdirSync(resRoot, { withFileTypes: true })) {
+  if (!directory.isDirectory()) continue
+  if (!/^(mipmap|drawable)/.test(directory.name)) continue
+  const target = join(resRoot, directory.name)
+  for (const name of [
+    'ic_launcher.png', 'ic_launcher.webp',
+    'ic_launcher_round.png', 'ic_launcher_round.webp',
+    'ic_launcher_foreground.png', 'ic_launcher_foreground.webp',
+    'ic_launcher.xml', 'ic_launcher_round.xml'
+  ]) {
+    const oldPath = join(target, name)
+    if (existsSync(oldPath)) rmSync(oldPath)
+  }
+}
+
 const densities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi']
 for (const density of densities) {
   const target = join(resRoot, `mipmap-${density}`)
   mkdirSync(target, { recursive: true })
   for (const name of ['ic_launcher.png', 'ic_launcher_round.png']) {
-    for (const ext of ['png', 'webp']) {
-      const oldPath = join(target, name.replace('.png', `.${ext}`))
-      if (existsSync(oldPath)) rmSync(oldPath)
-    }
     copyFileSync(join(sourceRoot, `mipmap-${density}`, name), join(target, name))
   }
 }
 
+// 432 px em xxxhdpi = 108 dp, dimensão nativa de uma camada adaptive icon.
+// Mantê-lo em drawable-xxxhdpi evita que o PNG seja interpretado como 432 dp.
+const foregroundDir = join(resRoot, 'drawable-xxxhdpi')
+mkdirSync(foregroundDir, { recursive: true })
+copyFileSync(join(sourceRoot, 'drawable', 'ic_launcher_foreground.png'), join(foregroundDir, 'ic_launcher_foreground.png'))
+
 const drawable = join(resRoot, 'drawable')
 mkdirSync(drawable, { recursive: true })
-copyFileSync(join(sourceRoot, 'drawable', 'ic_launcher_foreground.png'), join(drawable, 'ic_launcher_foreground.png'))
 copyFileSync(join(sourceRoot, 'drawable', 'splash_logo.png'), join(drawable, 'splash_logo.png'))
 writeFileSync(join(drawable, 'splash_background.xml'), `<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
@@ -56,8 +75,6 @@ const adaptiveXml = `<?xml version="1.0" encoding="utf-8"?>
 writeFileSync(join(adaptive, 'ic_launcher.xml'), adaptiveXml)
 writeFileSync(join(adaptive, 'ic_launcher_round.xml'), adaptiveXml)
 
-// Capacitor cria este recurso por padrão. Reutilizamos o mesmo nome para evitar
-// "Duplicate resources" e garantir que o adaptive icon use nossa identidade.
 const values = join(resRoot, 'values')
 mkdirSync(values, { recursive: true })
 const legacyCustomColor = join(values, 'eu_reciclo_icon.xml')
@@ -73,7 +90,6 @@ function setAndroidAttribute(tag, attribute, value) {
   return tag.replace(/>$/, ` ${attribute}="${value}">`)
 }
 
-// Garante que o Manifest aponte explicitamente para os recursos substituídos.
 if (existsSync(manifestPath)) {
   let manifest = readFileSync(manifestPath, 'utf8')
   manifest = manifest.replace(/<application\b[^>]*>/, tag => {
@@ -87,19 +103,13 @@ if (existsSync(manifestPath)) {
   writeFileSync(manifestPath, manifest)
 }
 
-// Android 12+ mostra a splash nativa antes da WebView. O Capacitor usa
-// AppTheme.NoActionBarLaunch; substituímos apenas esse estilo para mostrar a
-// marca do Eu Reciclo, sem depender do ícone/robô padrão do template Android.
 if (existsSync(stylesPath)) {
   let styles = readFileSync(stylesPath, 'utf8')
   const launchStyle = `    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">\n        <item name="android:windowBackground">@drawable/splash_background</item>\n        <item name="windowSplashScreenBackground">#F8FBF9</item>\n        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_logo</item>\n        <item name="windowSplashScreenIconBackgroundColor">#F8FBF9</item>\n        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>\n    </style>`
   const pattern = /\s*<style\s+name="AppTheme\.NoActionBarLaunch"[\s\S]*?<\/style>/
-  if (pattern.test(styles)) {
-    styles = styles.replace(pattern, `\n${launchStyle}`)
-  } else {
-    styles = styles.replace(/<\/resources>\s*$/, `${launchStyle}\n</resources>\n`)
-  }
+  if (pattern.test(styles)) styles = styles.replace(pattern, `\n${launchStyle}`)
+  else styles = styles.replace(/<\/resources>\s*$/, `${launchStyle}\n</resources>\n`)
   writeFileSync(stylesPath, styles)
 }
 
-console.log('Launcher e splash do Eu Reciclo aplicados aos recursos Android.')
+console.log('Launcher oficial do Eu Reciclo aplicado sem recursos padrão do Capacitor.')

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "name": "Eu Reciclo",
-  "versionName": "1.4.6",
-  "versionCode": 10406,
+  "versionName": "1.4.7",
+  "versionCode": 10407,
   "applicationId": "com.eureciclo.app",
   "namespace": "com.eureciclo.app",
   "type": "Android",
@@ -38,6 +38,8 @@
     "Onboarding em altura total sem faixa inferior indevida",
     "Tela de novidades e correções exibida uma vez por versão",
     "APK Android Release assinado com chave permanente via GitHub Secrets",
-    "Validação automática do certificado do APK antes da publicação"
+    "Validação automática do certificado do APK antes da publicação",
+    "Launcher Android limpo antes da aplicação para remover qualquer ícone padrão do Capacitor",
+    "Validação visual do ícone oficial dentro do APK final antes da publicação"
   ]
 }

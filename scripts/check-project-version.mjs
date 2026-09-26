@@ -19,6 +19,8 @@ if (manager.versionCode !== expectedCode) errors.push(`github-manager.json versi
 if (manager.applicationId !== 'com.eureciclo.app') errors.push(`applicationId inesperado: ${manager.applicationId}`)
 if (!Array.isArray(manager.features) || manager.features.length < 10) errors.push('github-manager.json precisa listar as funções principais em features')
 if (!pkg.scripts?.['apply:android-icon']) errors.push('package.json precisa manter o script apply:android-icon')
+if (!pkg.scripts?.['verify:android-icon']) errors.push('package.json precisa manter o script verify:android-icon')
+if (!pkg.scripts?.['verify:apk-icon']) errors.push('package.json precisa manter o script verify:apk-icon')
 if (!String(pkg.scripts?.['android:prepare'] || '').includes('apply:android-icon')) errors.push('android:prepare precisa aplicar o ícone Android')
 
 if (pkg.scripts?.['configure:android-signing'] !== 'node scripts/configure-android-signing.mjs') errors.push('package.json precisa manter configure:android-signing')
@@ -28,6 +30,7 @@ for (const secret of ['ANDROID_KEYSTORE_BASE64', 'ANDROID_KEYSTORE_PASSWORD', 'A
   if (!workflow.includes(`secrets.${secret}`)) errors.push(`workflow precisa usar o secret ${secret}`)
 }
 if (!workflow.includes('apksigner') || !workflow.includes('KEYSTORE_CERT_SHA256')) errors.push('workflow precisa validar o certificado do APK Release')
+if (!workflow.includes('Verify launcher icon inside APK') || !workflow.includes('verify:apk-icon')) errors.push('workflow precisa validar o ícone dentro do APK final')
 if (!signingScript.includes('signingConfig signingConfigs.release') || signingScript.includes('signingConfigs.debug')) errors.push('configuração Release precisa usar somente signingConfigs.release')
 
 const requiredAssets = [

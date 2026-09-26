@@ -19,8 +19,8 @@
           <div class="w-11 h-11 rounded-2xl flex items-center justify-center mb-4" style="background:rgba(34,197,94,.14);color:#15803d;">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 4 4L19 6"/><path d="M12 22a10 10 0 1 0-10-10"/></svg>
           </div>
-          <h2 class="text-slate-800 text-xl font-black">APK de produção mais seguro</h2>
-          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.6 passa a usar assinatura permanente no APK de produção.</p>
+          <h2 class="text-slate-800 text-xl font-black">Ícone oficial garantido no APK</h2>
+          <p class="text-slate-500 text-sm leading-relaxed mt-1.5">A versão 1.4.7 reforça o launcher Android e valida o ícone oficial dentro do APK antes da publicação.</p>
         </section>
 
         <div class="grid gap-3">
@@ -62,22 +62,22 @@ const isManual = computed(() => route.query.manual === '1')
 const changes = [
   {
     icon: 'app',
-    title: 'APK Release com assinatura permanente',
-    text: 'As novas versões passam a ser geradas em modo Release e assinadas com a chave permanente do projeto.',
+    title: 'Ícone oficial no launcher',
+    text: 'O Android recebe novamente todas as variantes do ícone do Eu Reciclo, incluindo ícone redondo e adaptive icon.',
     bg: '#ecfdf5',
     color: '#15803d'
   },
   {
     icon: 'list',
-    title: 'Assinatura verificada antes da publicação',
-    text: 'O processo de build confere automaticamente se o certificado do APK corresponde ao keystore correto.',
+    title: 'Validação dentro do APK',
+    text: 'O build confere o ícone já empacotado e interrompe a publicação se ele não corresponder ao ícone oficial.',
     bg: '#eff6ff',
     color: '#2563eb'
   },
   {
     icon: 'layout',
-    title: 'Proteção contra build Debug',
-    text: 'A publicação é interrompida se a chave permanente estiver ausente ou se o APK não estiver corretamente assinado.',
+    title: 'Adaptive icon ajustado',
+    text: 'A camada de primeiro plano agora usa a densidade Android correta para evitar escala ou recorte inadequado.',
     bg: '#fffbeb',
     color: '#b45309'
   }
