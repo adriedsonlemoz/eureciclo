@@ -1,18 +1,17 @@
-# Release — Eu Reciclo v1.4.7
+# Release — Eu Reciclo v1.4.8
 
-Version name: 1.4.7  
-Android versionCode: 10407  
+Version name: 1.4.8  
+Android versionCode: 10408  
 Application ID: `com.eureciclo.app`
 
 ## Destaques
 
-- Launcher Android reforçado para remover recursos padrão do Capacitor antes da aplicação do ícone oficial.
-- Adaptive icon com foreground em densidade xxxhdpi correta.
-- Verificação pré-build do Manifest e de todas as densidades do launcher.
-- Verificação pós-build dentro do APK usando `aapt` e comparação dos pixels do ícone oficial.
-- Publicação bloqueada se o APK não carregar a identidade visual correta.
-- Assinatura Release permanente continua obrigatória via GitHub Secrets.
+- Corrigida a validação pós-build que gerava falso erro ao interpretar `aapt dump badging`.
+- O launcher declarado pelo APK agora é conferido diretamente no Manifest binário.
+- `android:icon` precisa resolver para `@mipmap/ic_launcher` e `android:roundIcon` para `@mipmap/ic_launcher_round` na `resources.arsc`.
+- Continua ativa a comparação visual por pixels dos launchers e do foreground adaptativo realmente empacotados.
+- Assinatura Release permanente permanece obrigatória e validada com `apksigner`.
 
 ## APK
 
-O workflow gera `Eu-Reciclo-v1.4.7.apk` a partir de `app-release.apk` e só publica a Release após validar tanto a assinatura quanto o ícone empacotado.
+O workflow gera `Eu-Reciclo-v1.4.8.apk` a partir de `app-release.apk`. A publicação só ocorre depois de validar assinatura, Manifest, tabela de recursos e pixels do ícone empacotado.

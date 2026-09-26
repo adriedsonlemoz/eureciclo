@@ -202,16 +202,68 @@ function findAapt() {
   return result.status === 0 ? result.stdout.trim() : null
 }
 
+function runAapt(aapt, args, label) {
+  const result = spawnSync(aapt, args, { encoding: 'utf8', maxBuffer: 20 * 1024 * 1024 })
+  if (result.status !== 0) fail(`aapt não conseguiu ${label}: ${result.stderr || result.stdout}`)
+  return result.stdout
+}
+
+function getApplicationAttributeResourceId(xmlTree, attribute) {
+  const lines = xmlTree.split(/\r?\n/)
+  const applicationIndex = lines.findIndex(line => /^\s*E: application\b/.test(line))
+  if (applicationIndex < 0) fail('AndroidManifest.xml empacotado não contém <application>')
+
+  const applicationIndent = lines[applicationIndex].match(/^\s*/)?.[0].length ?? 0
+  for (let i = applicationIndex + 1; i < lines.length; i += 1) {
+    const line = lines[i]
+    const indent = line.match(/^\s*/)?.[0].length ?? 0
+    if (/^\s*E: /.test(line) && indent <= applicationIndent) break
+    if (/^\s*E: /.test(line) && indent > applicationIndent) break
+    const match = line.match(new RegExp(`android:${attribute}\\(0x[0-9a-f]+\\)=@(0x[0-9a-f]+)`, 'i'))
+    if (match) return match[1].toLowerCase()
+  }
+  return null
+}
+
+function findResourceNameLine(resources, resourceId, expectedName) {
+  if (!resourceId) return null
+  const escapedId = resourceId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const expected = new RegExp(`(?:spec\\s+)?resource\\s+${escapedId}\\s+com\\.eureciclo\\.app:mipmap/${expectedName}(?::|\\s)`, 'i')
+  return resources.split(/\r?\n/).find(line => expected.test(line)) || null
+}
+
+function assertResourceIdName(resources, resourceId, expectedName, attribute) {
+  if (!resourceId) fail(`Manifest empacotado não declara android:${attribute}`)
+  const matchedLine = findResourceNameLine(resources, resourceId, expectedName)
+  if (!matchedLine) {
+    const resourceLine = resources.split(/\r?\n/).find(line => line.toLowerCase().includes(resourceId)) || '(recurso não localizado)'
+    fail(`android:${attribute} não aponta para @mipmap/${expectedName}; ${resourceLine.trim()}`)
+  }
+  return matchedLine.trim()
+}
+
 function verifyApk(apkPath) {
   if (!apkPath || !existsSync(apkPath)) fail(`APK não encontrado: ${apkPath || '(não informado)'}`)
   const aapt = findAapt()
   if (!aapt) fail('aapt não encontrado no Android SDK; não é possível conferir o launcher do APK')
 
-  const badging = spawnSync(aapt, ['dump', 'badging', apkPath], { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 })
-  if (badging.status !== 0) fail(`aapt não conseguiu ler o APK: ${badging.stderr || badging.stdout}`)
-  const output = badging.stdout
-  if (!/package: name='com\.eureciclo\.app'/.test(output)) fail('APK verificado não pertence ao package com.eureciclo.app')
-  if (!/application-icon-\d+:'res\/mipmap-[^']+\/ic_launcher\.png'/.test(output)) fail('APK não anuncia ic_launcher como ícone do aplicativo')
+  const badging = runAapt(aapt, ['dump', 'badging', apkPath], 'ler o badging do APK')
+  if (!/package: name='com\.eureciclo\.app'/.test(badging)) fail('APK verificado não pertence ao package com.eureciclo.app')
+
+  // Não usamos as linhas application-icon-* do `aapt dump badging` como prova do
+  // launcher. Em APKs com adaptive icon elas podem apontar para XML, omitir as
+  // variantes legacy ou mudar de formato entre versões do build-tools. A fonte
+  // confiável é o Manifest binário + a tabela resources.arsc já empacotados.
+  const xmlTree = runAapt(aapt, ['dump', 'xmltree', apkPath, 'AndroidManifest.xml'], 'ler o AndroidManifest.xml do APK')
+  const resources = runAapt(aapt, ['dump', 'resources', apkPath], 'ler a tabela de recursos do APK')
+  const iconResourceId = getApplicationAttributeResourceId(xmlTree, 'icon')
+  const roundIconResourceId = getApplicationAttributeResourceId(xmlTree, 'roundIcon')
+  const iconResourceLine = assertResourceIdName(resources, iconResourceId, 'ic_launcher', 'icon')
+  const roundIconResourceLine = assertResourceIdName(resources, roundIconResourceId, 'ic_launcher_round', 'roundIcon')
+  console.log(`Manifest do APK: android:icon=${iconResourceId} -> @mipmap/ic_launcher`)
+  console.log(`Manifest do APK: android:roundIcon=${roundIconResourceId} -> @mipmap/ic_launcher_round`)
+  console.log(`Tabela de recursos: ${iconResourceLine}`)
+  console.log(`Tabela de recursos: ${roundIconResourceLine}`)
 
   const entries = unzipList(apkPath)
   const legacyEntry = entries.find(entry => /^res\/mipmap-xxxhdpi(?:-v\d+)?\/ic_launcher\.png$/.test(entry))
@@ -228,7 +280,7 @@ function verifyApk(apkPath) {
   assertSamePixels(canonicalLegacy, unzipEntry(apkPath, roundEntry), roundEntry)
   const foreground = assertSamePixels(canonicalForeground, unzipEntry(apkPath, foregroundEntry), foregroundEntry)
 
-  console.log(`APK confirmado com o ícone oficial do Eu Reciclo: legacy ${legacy.width}x${legacy.height} e adaptive ${foreground.width}x${foreground.height}.`)
+  console.log(`APK confirmado com o ícone oficial do Eu Reciclo: Manifest -> @mipmap/ic_launcher / @mipmap/ic_launcher_round, legacy ${legacy.width}x${legacy.height} e adaptive ${foreground.width}x${foreground.height}.`)
 }
 
 const args = process.argv.slice(2)

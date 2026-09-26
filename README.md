@@ -4,8 +4,8 @@ Aplicativo mobile para calcular o valor estimado de materiais recicláveis, regi
 
 ## Versão
 
-- App: **1.4.7**
-- Android `versionCode`: **10407**
+- App: **1.4.8**
+- Android `versionCode`: **10408**
 - Application ID: `com.eureciclo.app`
 
 ## Funcionalidades
@@ -86,7 +86,7 @@ cd android
 ./gradlew assembleRelease
 ```
 
-`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode`, ativa o modo tela cheia imersivo e instala os recursos do ícone oficial no Android. `configure:android-signing` exige a chave permanente e não possui fallback para certificado Debug.
+`android:prepare` sincroniza o Capacitor, aplica `versionName/versionCode`, ativa o modo tela cheia imersivo e instala os recursos do ícone oficial no Android. `configure:android-signing` exige a chave permanente e não possui fallback para certificado Debug. A validação pós-build lê `android:icon` e `android:roundIcon` no Manifest binário do APK, resolve os IDs na `resources.arsc` e compara os pixels dos launchers empacotados com os arquivos oficiais; ela não depende mais do formato variável de `aapt dump badging` para identificar o ícone.
 
 ## GitHub Manager
 
@@ -100,7 +100,7 @@ A validação compara `package.json`, `package-lock.json` e `github-manager.json
 
 ## APK direto
 
-O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, exige os GitHub Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD`, gera o **APK Release assinado**, confere o certificado com `apksigner` e publica **`Eu-Reciclo-v1.4.7.apk`** diretamente como asset da Release `v1.4.7`. Em pull requests, os testes e o lint Android rodam sem acesso aos secrets e nenhum APK é publicado.
+O workflow não usa `actions/upload-artifact` como entrega principal. Em `main`/`master` ou execução manual, exige os GitHub Secrets `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` e `ANDROID_KEY_PASSWORD`, gera o **APK Release assinado**, confere o certificado com `apksigner` e publica **`Eu-Reciclo-v1.4.8.apk`** diretamente como asset da Release `v1.4.8`. Em pull requests, os testes e o lint Android rodam sem acesso aos secrets e nenhum APK é publicado.
 
 ## Tamanho do projeto
 

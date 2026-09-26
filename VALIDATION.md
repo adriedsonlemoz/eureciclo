@@ -1,12 +1,13 @@
-# Validação — Eu Reciclo v1.4.7
+# Validação — Eu Reciclo v1.4.8
 
-Validações locais executadas nesta entrega:
+Validações desta entrega:
 
-- `npm test`: **28/28 testes aprovados**.
-- `npm run check:version`: **aprovado**, versão `1.4.7` / `10407`.
-- Recursos oficiais do launcher presentes em todas as densidades Android.
-- `scripts/apply-android-icon.mjs` remove variantes herdadas do Capacitor antes de aplicar os recursos oficiais.
-- `scripts/verify-android-icon.mjs`: valida o projeto Android gerado e também o APK final; a validação do projeto foi executada com sucesso em fixture contendo recursos padrão do Capacitor.
-- O workflow executa a checagem do ícone antes e depois do build.
-
-Observação: o log `Build-Android-APK-11` encerrou antes da compilação porque os quatro GitHub Secrets de assinatura chegaram vazios ao runner. Isso é configuração do repositório, não falha do recurso de ícone. O workflow mantém a proteção: não publica APK Release sem a chave permanente.
+- `npm test`: **29/29 testes aprovados**, incluindo fixture que simula adaptive icon anunciado como XML pelo Android.
+- `npm run check:version`: **aprovado**, versão `1.4.8` / `10408`.
+- O log `Build-Android-APK-12` foi analisado integralmente na etapa que falhou.
+- `assembleRelease`: **aprovado**, com `BUILD SUCCESSFUL` e APK Release gerado.
+- Secrets/keystore: **aprovados** nessa execução; o Gradle concluiu `validateSigningRelease`.
+- Verificação pré-build do launcher: **aprovada** (`legacy 192x192`, `adaptive 432x432`).
+- Causa do erro: a validação 1.4.7 exigia uma linha `application-icon-*` terminando em `ic_launcher.png` no `aapt dump badging`; essa saída não é estável para adaptive icons e gerou falso negativo após o APK já ter sido compilado corretamente.
+- Correção: a validação 1.4.8 usa `aapt dump xmltree` no `AndroidManifest.xml` binário e `aapt dump resources` para resolver os IDs de `android:icon` e `android:roundIcon`.
+- A comparação por pixels dos PNGs realmente empacotados continua ativa como segunda camada de validação.

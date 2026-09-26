@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.8 — 2026-09-26
+
+- Corrigido falso erro da validação pós-build do launcher: o `aapt dump badging` pode anunciar adaptive icons como XML ou omitir as linhas `application-icon-*`, portanto não é uma fonte estável para exigir `ic_launcher.png`.
+- A validação agora lê `android:icon` e `android:roundIcon` diretamente do `AndroidManifest.xml` binário dentro do APK.
+- Os IDs de recurso do Manifest são resolvidos na `resources.arsc` e precisam apontar exatamente para `@mipmap/ic_launcher` e `@mipmap/ic_launcher_round`.
+- Mantida a verificação forte dos arquivos realmente empacotados: launcher legacy, launcher redondo, adaptive icon e foreground; os PNGs continuam sendo comparados por pixels com os recursos oficiais.
+- O log `Build-Android-APK-12` confirmou que o APK Release 1.4.7 compilou e foi assinado corretamente; a falha ocorreu somente na checagem antiga do nome exibido pelo `badging`.
+- Versão sincronizada em `1.4.8` / `10408`.
+
 ## 1.4.7 — 2026-09-26
 
 - Reforçada a aplicação do ícone oficial do Eu Reciclo no launcher Android.
